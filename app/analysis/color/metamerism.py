@@ -66,6 +66,33 @@ def compute_metamerism_index(xyz_ref, xyz_test, illuminants=None):
     }
 
 
+def compute_metamerism_de(xyz_ref, xyz_test, src_wp, dst_wp):
+    """
+    Compute delta E for a specific illuminant adaptation.
+    
+    Args:
+        xyz_ref: Reference XYZ values
+        xyz_test: Test XYZ values
+        src_wp: Source white point (typically D65)
+        dst_wp: Destination white point
+        
+    Returns:
+        float: Mean delta E 2000 value
+    """
+    # Adapt to target illuminant
+    xyz_ref_adapted = adapt_white_xyz(xyz_ref, src_wp, dst_wp)
+    xyz_test_adapted = adapt_white_xyz(xyz_test, src_wp, dst_wp)
+    
+    # Convert to LAB
+    lab_ref = xyz_to_lab(xyz_ref_adapted, dst_wp)
+    lab_test = xyz_to_lab(xyz_test_adapted, dst_wp)
+    
+    # Calculate color difference
+    de = deltaE2000(lab_ref, lab_test)
+    
+    return float(np.mean(de))
+
+
 def assess_metamerism_risk(metamerism_index):
     """
     Assess metamerism risk level.

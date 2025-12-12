@@ -84,6 +84,10 @@ def hunter_whiteness(xyz):
     return WI
 
 
+# Alias for compatibility
+astm_yellowness = astm_e313_yellowness
+
+
 def berger_whiteness(xyz):
     """
     Berger Whiteness Index.
