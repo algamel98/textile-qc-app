@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Textile QC System - Professional Color & Pattern Analysis</title>
     <link rel="stylesheet" href="/static/css/main.css">
-    <link rel="stylesheet" href="/static/css/components.css">
-    <link rel="stylesheet" href="/static/css/modal.css">
     <link rel="icon" type="image/png" href="/static/images/logo_square_no_name_1024x1024.png">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Header -->
@@ -27,143 +24,123 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Main Section with Split View -->
-        <section class="upload-section" id="mainSection">
-            <!-- Header -->
-            <div class="upload-header">
-                <h2>Image Quality Control Analysis</h2>
-                <p>Upload reference and sample images to begin quality control analysis</p>
-            </div>
+        <!-- Header Text -->
+        <div class="page-header">
+            <h2>Image Quality Control Analysis</h2>
+            <p>Upload reference and sample images to begin quality control analysis</p>
+        </div>
 
-            <!-- Split Image Viewer -->
-            <div class="image-viewer-container">
-                <div class="image-viewer">
-                    <!-- Reference Image Panel -->
-                    <div class="viewer-panel" id="refPanel">
-                        <div class="panel-header">
-                            <span class="panel-title">Reference Image</span>
-                            <span class="panel-info" id="refInfo">No image</span>
-                        </div>
-                        <div class="panel-content" id="refPanelContent">
-                            <input type="file" id="refInput" accept="image/*" hidden>
-                            <div class="upload-placeholder-panel" id="refPlaceholder">
-                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                    <polyline points="21 15 16 10 5 21"></polyline>
-                                </svg>
-                                <span>Reference Image</span>
-                                <small>Click or drag to upload</small>
-                            </div>
-                            <canvas id="refCanvas"></canvas>
-                            <div class="shape-overlay" id="refOverlay"></div>
-                        </div>
+        <!-- Split Image Viewer -->
+        <div class="image-viewer-container">
+            <div class="image-viewer">
+                <!-- Reference Image Panel -->
+                <div class="viewer-panel">
+                    <div class="panel-header">
+                        <span class="panel-title"><span class="dot ref"></span>Reference Image</span>
+                        <span class="panel-info" id="refInfo">No image</span>
                     </div>
-
-                    <!-- Sample Image Panel -->
-                    <div class="viewer-panel" id="testPanel">
-                        <div class="panel-header">
-                            <span class="panel-title">Sample Image</span>
-                            <span class="panel-info" id="testInfo">No image</span>
+                    <div class="panel-content" id="refPanelContent">
+                        <input type="file" id="refInput" accept="image/*" style="display:none;">
+                        <div class="upload-placeholder" id="refPlaceholder" onclick="document.getElementById('refInput').click()">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <span>Reference Image</span>
+                            <small>Click to upload</small>
                         </div>
-                        <div class="panel-content" id="testPanelContent">
-                            <input type="file" id="testInput" accept="image/*" hidden>
-                            <div class="upload-placeholder-panel" id="testPlaceholder">
-                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                    <polyline points="21 15 16 10 5 21"></polyline>
-                                </svg>
-                                <span>Sample Image</span>
-                                <small>Click or drag to upload</small>
-                            </div>
-                            <canvas id="testCanvas"></canvas>
-                            <div class="shape-overlay" id="testOverlay"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Controls Section -->
-            <div class="controls-section">
-                <!-- Shape Controls - Above Main Buttons -->
-                <div class="shape-controls">
-                    <!-- Shape Options -->
-                    <div class="shape-options">
-                        <label class="shape-option" id="circleOption">
-                            <input type="radio" name="shapeType" value="circle" checked>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                            </svg>
-                            <span>Circle</span>
-                        </label>
-                        
-                        <label class="shape-option" id="squareOption">
-                            <input type="radio" name="shapeType" value="square">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                            </svg>
-                            <span>Square</span>
-                        </label>
-                        
-                        <label class="shape-option" id="fullImageOption">
-                            <input type="checkbox" id="processFullImage">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="2" width="20" height="20" rx="2"></rect>
-                                <path d="M2 12h20M12 2v20"></path>
-                            </svg>
-                            <span>Process Entire Image</span>
-                        </label>
-                    </div>
-
-                    <!-- Size Slider -->
-                    <div class="size-slider-container" id="sizeSliderContainer">
-                        <label>Size (px):</label>
-                        <input type="range" id="shapeSize" min="20" max="500" value="100">
-                        <span class="size-value" id="sizeValue">100 px</span>
+                        <img id="refPreview" class="image-preview" style="display:none;">
+                        <div class="shape-overlay circle" id="refOverlay"></div>
                     </div>
                 </div>
 
-                <!-- Main Buttons -->
-                <div class="main-buttons">
-                    <button class="btn btn-outline btn-lg" id="btnAdvancedSettings">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                        Advanced Settings
-                    </button>
+                <!-- Sample Image Panel -->
+                <div class="viewer-panel">
+                    <div class="panel-header">
+                        <span class="panel-title"><span class="dot sample"></span>Sample Image</span>
+                        <span class="panel-info" id="testInfo">No image</span>
+                    </div>
+                    <div class="panel-content" id="testPanelContent">
+                        <input type="file" id="testInput" accept="image/*" style="display:none;">
+                        <div class="upload-placeholder" id="testPlaceholder" onclick="document.getElementById('testInput').click()">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <span>Sample Image</span>
+                            <small>Click to upload</small>
+                        </div>
+                        <img id="testPreview" class="image-preview" style="display:none;">
+                        <div class="shape-overlay circle" id="testOverlay"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls-section">
+            <!-- Shape Controls -->
+            <div class="shape-controls">
+                <div class="shape-options">
+                    <label class="shape-option active" id="circleOption">
+                        <input type="radio" name="shapeType" value="circle" checked>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
+                        <span>Circle</span>
+                    </label>
                     
-                    <button class="btn btn-primary btn-lg" id="btnStartProcessing" disabled>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                        </svg>
-                        Start Processing
-                    </button>
+                    <label class="shape-option" id="squareOption">
+                        <input type="radio" name="shapeType" value="square">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
+                        <span>Square</span>
+                    </label>
                     
-                    <button class="btn btn-danger btn-lg" id="btnDeleteImages" disabled>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                        Delete Images
-                    </button>
+                    <label class="shape-option" id="fullImageOption">
+                        <input type="checkbox" id="processFullImage">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"></rect><path d="M2 12h20M12 2v20"></path></svg>
+                        <span>Process Entire Image</span>
+                    </label>
+                </div>
+
+                <div class="size-slider-container" id="sizeSliderContainer">
+                    <label>Size (px):</label>
+                    <input type="range" id="shapeSize" min="20" max="500" value="100">
+                    <span class="size-value" id="sizeValue">100 px</span>
                 </div>
             </div>
-        </section>
 
-        <!-- Results Section -->
-        <section class="results-section" id="resultsSection" hidden>
-            <div class="results-header">
-                <h2>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            <!-- Main Buttons -->
+            <div class="main-buttons">
+                <button class="btn btn-outline" id="btnAdvancedSettings" type="button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"></path>
                     </svg>
-                    Analysis Results
-                </h2>
+                    Advanced Settings
+                </button>
+                
+                <button class="btn btn-primary" id="btnStartProcessing" type="button" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Start Processing
+                </button>
+                
+                <button class="btn btn-danger" id="btnDeleteImages" type="button" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Delete Images
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section (Hidden by default) -->
+        <div class="results-section" id="resultsSection" style="display:none;">
+            <div class="results-header">
+                <h2>Analysis Results</h2>
                 <div class="decision-badge" id="decisionBadge">PENDING</div>
             </div>
             
@@ -178,9 +155,7 @@
                         <span>Color Score</span>
                     </div>
                     <div class="card-value" id="colorScore">--</div>
-                    <div class="card-bar">
-                        <div class="bar-fill" id="colorBar"></div>
-                    </div>
+                    <div class="card-bar"><div class="bar-fill" id="colorBar"></div></div>
                 </div>
                 
                 <div class="result-card">
@@ -194,9 +169,7 @@
                         <span>Pattern Score</span>
                     </div>
                     <div class="card-value" id="patternScore">--</div>
-                    <div class="card-bar">
-                        <div class="bar-fill" id="patternBar"></div>
-                    </div>
+                    <div class="card-bar"><div class="bar-fill" id="patternBar"></div></div>
                 </div>
                 
                 <div class="result-card">
@@ -207,14 +180,12 @@
                         <span>Overall Score</span>
                     </div>
                     <div class="card-value" id="overallScore">--</div>
-                    <div class="card-bar">
-                        <div class="bar-fill" id="overallBar"></div>
-                    </div>
+                    <div class="card-bar"><div class="bar-fill" id="overallBar"></div></div>
                 </div>
             </div>
             
             <div class="results-actions">
-                <button class="btn btn-success btn-lg" id="btnDownload" disabled>
+                <button class="btn btn-success" id="btnDownload" type="button" disabled>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
@@ -222,90 +193,45 @@
                     </svg>
                     Download Report (PDF)
                 </button>
-                <button class="btn btn-secondary btn-sm download-settings-btn" id="btnDownloadSettings" disabled>
+                <button class="btn btn-secondary btn-sm" id="btnDownloadSettings" type="button">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                         <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
                     </svg>
                     Download Settings
                 </button>
             </div>
-        </section>
-
-        <!-- Loading Overlay -->
-        <div class="loading-overlay" id="loadingOverlay" hidden>
-            <div class="loading-content">
-                <div class="spinner-container">
-                    <div class="spinner"></div>
-                    <div class="spinner-inner"></div>
-                </div>
-                <h3 id="loadingTitle">Processing Images...</h3>
-                <p id="loadingText">Please wait while we analyze your images</p>
-                <div class="loading-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                </div>
-            </div>
         </div>
     </main>
 
-    <!-- Settings Modal -->
-    <div class="modal" id="settingsModal" hidden>
-        <div class="modal-backdrop"></div>
-        <div class="modal-content">
+    <!-- Loading Overlay (Hidden by default) -->
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3 id="loadingTitle">Processing...</h3>
+            <p id="loadingText">Please wait</p>
+        </div>
+    </div>
+
+    <!-- Settings Modal (Hidden by default) -->
+    <div class="modal-overlay" id="settingsModal" style="display:none;">
+        <div class="modal">
             <div class="modal-header">
-                <div class="modal-header-content">
+                <div class="modal-header-left">
                     <img src="/static/images/logo_square_no_name_1024x1024.png" alt="Logo" class="modal-logo">
                     <div>
                         <h2>Advanced Settings</h2>
-                        <div class="modal-header-subtitle">Configure analysis parameters</div>
+                        <span class="modal-subtitle">Configure analysis parameters</span>
                     </div>
                 </div>
-                <button class="modal-close" id="closeModal">&times;</button>
+                <button class="modal-close" id="closeModal" type="button">&times;</button>
             </div>
             
             <div class="modal-tabs">
-                <button class="tab active" data-tab="thresholds">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="4" y1="21" x2="4" y2="14"></line>
-                        <line x1="4" y1="10" x2="4" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12" y2="3"></line>
-                        <line x1="20" y1="21" x2="20" y2="16"></line>
-                        <line x1="20" y1="12" x2="20" y2="3"></line>
-                        <line x1="1" y1="14" x2="7" y2="14"></line>
-                        <line x1="9" y1="8" x2="15" y2="8"></line>
-                        <line x1="17" y1="16" x2="23" y2="16"></line>
-                    </svg>
-                    <span>Thresholds</span>
-                </button>
-                <button class="tab" data-tab="color">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <circle cx="12" cy="12" r="6"></circle>
-                        <circle cx="12" cy="12" r="2"></circle>
-                    </svg>
-                    <span>Color Analysis</span>
-                </button>
-                <button class="tab" data-tab="pattern">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                    </svg>
-                    <span>Pattern Analysis</span>
-                </button>
-                <button class="tab" data-tab="report">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                    </svg>
-                    <span>Report Sections</span>
-                </button>
+                <button class="tab active" data-tab="thresholds" type="button">Thresholds</button>
+                <button class="tab" data-tab="color" type="button">Color Analysis</button>
+                <button class="tab" data-tab="pattern" type="button">Pattern Analysis</button>
+                <button class="tab" data-tab="report" type="button">Report Sections</button>
             </div>
             
             <div class="modal-body">
@@ -392,7 +318,7 @@
                 <!-- Pattern Analysis Tab -->
                 <div class="tab-content" id="tab-pattern">
                     <div class="settings-group">
-                        <h3>Advanced Texture Parameters</h3>
+                        <h3>Texture Parameters</h3>
                         <div class="setting-row">
                             <label>LBP Points</label>
                             <input type="number" id="lbp_points" value="24" step="1" min="8">
@@ -439,7 +365,7 @@
                 <!-- Report Sections Tab -->
                 <div class="tab-content" id="tab-report">
                     <div class="settings-group">
-                        <h3>Main Sections</h3>
+                        <h3>Report Sections</h3>
                         <div class="setting-row">
                             <label>Color Unit</label>
                             <input type="checkbox" id="enable_color_unit" checked>
@@ -466,30 +392,17 @@
                         <h3>Operator Info</h3>
                         <div class="setting-row">
                             <label>Operator Name</label>
-                            <input type="text" id="operator_name" value="Operator" style="width: 200px; text-align: left;">
+                            <input type="text" id="operator_name" value="Operator">
                         </div>
                     </div>
                 </div>
             </div>
             
             <div class="modal-footer">
-                <div class="modal-footer-left">
-                    <button class="btn btn-secondary" id="btnResetSettings">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="1 4 1 10 7 10"></polyline>
-                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                        </svg>
-                        Reset to Defaults
-                    </button>
-                </div>
+                <button class="btn btn-secondary" id="btnResetSettings" type="button">Reset to Defaults</button>
                 <div class="modal-footer-right">
-                    <button class="btn btn-secondary" id="btnCancelSettings">Cancel</button>
-                    <button class="btn btn-primary" id="btnApplySettings">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        Apply Settings
-                    </button>
+                    <button class="btn btn-secondary" id="btnCancelSettings" type="button">Cancel</button>
+                    <button class="btn btn-primary" id="btnApplySettings" type="button">Apply Settings</button>
                 </div>
             </div>
         </div>
@@ -497,12 +410,8 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-content">
-            <img src="/static/images/logo_square_no_name_1024x1024.png" alt="Logo" style="height: 24px; opacity: 0.8;">
-            <span>© 2024 Textile Engineering Solutions</span>
-            <span class="footer-divider">|</span>
-            <span>Professional Color Analysis Solutions</span>
-        </div>
+        <img src="/static/images/logo_square_no_name_1024x1024.png" alt="Logo">
+        <span>© 2024 Textile Engineering Solutions | Professional Color Analysis Solutions</span>
     </footer>
 
     <script src="/static/js/app.js"></script>
