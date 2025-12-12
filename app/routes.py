@@ -6,15 +6,12 @@ import os
 import uuid
 import json
 import logging
+import traceback
 from flask import (
     Blueprint, request, jsonify, send_file, render_template, 
-    current_app, send_from_directory
+    current_app, send_from_directory, Response
 )
 from werkzeug.utils import secure_filename
-
-from app.core.settings import QCSettings
-from app.core.image_utils import read_rgb, to_same_size, validate_image_file
-from app.pipeline.runner import run_analysis_pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -72,11 +69,15 @@ def upload_images():
         ref_file.save(ref_path)
         test_file.save(test_path)
         
-        # Validate images
-        validate_image_file(ref_path)
-        validate_image_file(test_path)
+        # Validate and get dimensions
+        from app.core.image_utils import read_rgb, validate_image_file
         
-        # Read images to get dimensions
+        try:
+            validate_image_file(ref_path)
+            validate_image_file(test_path)
+        except Exception as e:
+            return jsonify({'error': f'Invalid image: {str(e)}'}), 400
+        
         ref = read_rgb(ref_path)
         test = read_rgb(test_path)
         
@@ -96,11 +97,10 @@ def upload_images():
             }
         })
         
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
     except Exception as e:
         logger.error(f"Upload error: {str(e)}")
-        return jsonify({'error': 'Failed to upload images'}), 500
+        logger.error(traceback.format_exc())
+        return jsonify({'error': f'Failed to upload images: {str(e)}'}), 500
 
 
 @main_bp.route('/api/image/<session_id>/<image_type>')
@@ -112,7 +112,6 @@ def get_image(session_id, image_type):
         if not os.path.exists(session_dir):
             return jsonify({'error': 'Session not found'}), 404
         
-        # Find the image file
         prefix = 'reference_' if image_type == 'reference' else 'sample_'
         
         for filename in os.listdir(session_dir):
@@ -155,11 +154,13 @@ def analyze():
             return jsonify({'error': 'Images not found'}), 404
         
         # Parse settings
+        from app.core.settings import QCSettings
         settings = QCSettings()
         if 'settings' in data:
             settings = QCSettings.from_dict(data['settings'])
         
         # Read images
+        from app.core.image_utils import read_rgb, to_same_size
         ref = read_rgb(ref_path)
         test = read_rgb(test_path)
         ref, test = to_same_size(ref, test)
@@ -170,42 +171,53 @@ def analyze():
         
         # Run analysis
         logger.info(f"Starting analysis for session {session_id}")
+        
+        from app.pipeline.runner import run_analysis_pipeline
         results = run_analysis_pipeline(ref_path, test_path, ref, test, settings, output_dir)
+        
+        # Check for errors
+        if results.get('decision') == 'ERROR':
+            return jsonify({
+                'error': results.get('error', 'Analysis failed'),
+                'session_id': session_id
+            }), 500
         
         # Prepare response
         response = {
             'session_id': session_id,
-            'decision': results['decision'],
-            'color_score': results['color_score'],
-            'pattern_score': results['pattern_score'],
-            'overall_score': results['overall_score'],
-            'pdf_filename': os.path.basename(results['pdf_path']),
+            'decision': results.get('decision', 'N/A'),
+            'color_score': results.get('color_score', 0),
+            'pattern_score': results.get('pattern_score', 0),
+            'overall_score': results.get('overall_score', 0),
+            'pdf_filename': os.path.basename(results.get('pdf_path', 'report.pdf')),
         }
         
+        # Add metrics if available
         if 'color_metrics' in results:
-            response['color_metrics'] = results['color_metrics']
+            response['color_metrics'] = {
+                k: v for k, v in results['color_metrics'].items()
+                if isinstance(v, (int, float, str))
+            }
         
         if 'pattern_metrics' in results:
             response['pattern_metrics'] = {
-                k: v for k, v in results['pattern_metrics'].items() 
-                if not isinstance(v, (list, dict)) or k == 'status'
+                k: v for k, v in results['pattern_metrics'].items()
+                if isinstance(v, (int, float, str))
             }
         
         if 'pattern_repetition' in results:
-            rep = results['pattern_repetition']
             response['pattern_repetition'] = {
-                'count_ref': rep['count_ref'],
-                'count_test': rep['count_test'],
-                'count_diff': rep['count_diff'],
-                'status': rep['status']
+                k: v for k, v in results['pattern_repetition'].items()
+                if isinstance(v, (int, float, str))
             }
         
-        logger.info(f"Analysis complete for session {session_id}: {results['decision']}")
+        logger.info(f"Analysis complete for session {session_id}: {results.get('decision')}")
         
         return jsonify(response)
         
     except Exception as e:
         logger.error(f"Analysis error: {str(e)}")
+        logger.error(traceback.format_exc())
         return jsonify({'error': f'Analysis failed: {str(e)}'}), 500
 
 
@@ -218,7 +230,15 @@ def download_report(session_id, filename):
         if not os.path.exists(output_dir):
             return jsonify({'error': 'Session not found'}), 404
         
+        # Look for any PDF file
         file_path = os.path.join(output_dir, filename)
+        
+        if not os.path.exists(file_path):
+            # Try to find any PDF in the directory
+            for f in os.listdir(output_dir):
+                if f.endswith('.pdf'):
+                    file_path = os.path.join(output_dir, f)
+                    break
         
         if not os.path.exists(file_path):
             return jsonify({'error': 'File not found'}), 404
@@ -254,6 +274,6 @@ def get_chart(session_id, chart_name):
 @main_bp.route('/api/settings/default')
 def get_default_settings():
     """Get default settings"""
+    from app.core.settings import QCSettings
     settings = QCSettings()
     return jsonify(settings.to_dict())
-

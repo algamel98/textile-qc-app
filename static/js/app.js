@@ -1,6 +1,6 @@
 /**
  * Textile QC System - Main Application
- * Version 2.0.0
+ * Version 2.0.0 - With Progress Tracking
  */
 
 // ==========================================
@@ -14,7 +14,20 @@ var AppState = {
     shapeSize: 100,
     processFullImage: false,
     pdfFilename: null,
-    settings: {}
+    settings: {},
+    isProcessing: false
+};
+
+// ==========================================
+// Progress Steps Configuration
+// ==========================================
+var ProgressSteps = {
+    upload: { name: 'Uploading Images', weight: 10 },
+    color: { name: 'Color Analysis', weight: 25 },
+    pattern: { name: 'Pattern Analysis', weight: 25 },
+    repetition: { name: 'Pattern Repetition', weight: 20 },
+    scoring: { name: 'Calculating Scores', weight: 10 },
+    report: { name: 'Generating Report', weight: 10 }
 };
 
 // ==========================================
@@ -39,13 +52,13 @@ function initFileInputs() {
     
     if (refInput) {
         refInput.addEventListener('change', function(e) {
-            handleFileUpload(e.target.files[0], 'reference');
+            if (e.target.files[0]) handleFileUpload(e.target.files[0], 'reference');
         });
     }
     
     if (testInput) {
         testInput.addEventListener('change', function(e) {
-            handleFileUpload(e.target.files[0], 'sample');
+            if (e.target.files[0]) handleFileUpload(e.target.files[0], 'sample');
         });
     }
 }
@@ -57,43 +70,33 @@ function handleFileUpload(file, type) {
     reader.onload = function(e) {
         if (type === 'reference') {
             AppState.refFile = file;
-            showImagePreview('refPreview', 'refPlaceholder', 'refInfo', e.target.result, file);
+            showImagePreview('refPreview', 'refPlaceholder', 'refInfo', e.target.result);
         } else {
             AppState.testFile = file;
-            showImagePreview('testPreview', 'testPlaceholder', 'testInfo', e.target.result, file);
+            showImagePreview('testPreview', 'testPlaceholder', 'testInfo', e.target.result);
         }
         updateButtonStates();
+    };
+    reader.onerror = function() {
+        alert('Error reading file');
     };
     reader.readAsDataURL(file);
 }
 
-function showImagePreview(previewId, placeholderId, infoId, src, file) {
+function showImagePreview(previewId, placeholderId, infoId, src) {
     var preview = document.getElementById(previewId);
     var placeholder = document.getElementById(placeholderId);
     var info = document.getElementById(infoId);
     
     if (preview && placeholder) {
-        preview.src = src;
-        preview.style.display = 'block';
-        placeholder.style.display = 'none';
-        
-        // Get image dimensions
         var img = new Image();
         img.onload = function() {
-            if (info) {
-                info.textContent = img.width + '×' + img.height;
-            }
-            updateMaxShapeSize(img.width, img.height);
+            preview.src = src;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+            if (info) info.textContent = img.width + '×' + img.height;
         };
         img.src = src;
-    }
-}
-
-function updateMaxShapeSize(width, height) {
-    var minDim = Math.min(width, height);
-    var slider = document.getElementById('shapeSize');
-    if (slider && minDim > 50) {
-        slider.max = Math.min(minDim, 800);
     }
 }
 
@@ -101,7 +104,6 @@ function updateMaxShapeSize(width, height) {
 // Shape Controls
 // ==========================================
 function initShapeControls() {
-    // Shape type radios
     var radios = document.querySelectorAll('input[name="shapeType"]');
     radios.forEach(function(radio) {
         radio.addEventListener('change', function(e) {
@@ -111,7 +113,6 @@ function initShapeControls() {
         });
     });
     
-    // Full image checkbox
     var fullImageCheckbox = document.getElementById('processFullImage');
     if (fullImageCheckbox) {
         fullImageCheckbox.addEventListener('change', function(e) {
@@ -120,7 +121,6 @@ function initShapeControls() {
         });
     }
     
-    // Size slider
     var sizeSlider = document.getElementById('shapeSize');
     var sizeValue = document.getElementById('sizeValue');
     if (sizeSlider && sizeValue) {
@@ -131,7 +131,6 @@ function initShapeControls() {
         });
     }
     
-    // Initialize shape options visual state
     updateShapeOptions();
 }
 
@@ -139,10 +138,8 @@ function updateShapeOptions() {
     var circleOpt = document.getElementById('circleOption');
     var squareOpt = document.getElementById('squareOption');
     
-    if (circleOpt && squareOpt) {
-        circleOpt.classList.toggle('active', AppState.shapeType === 'circle');
-        squareOpt.classList.toggle('active', AppState.shapeType === 'square');
-    }
+    if (circleOpt) circleOpt.classList.toggle('active', AppState.shapeType === 'circle');
+    if (squareOpt) squareOpt.classList.toggle('active', AppState.shapeType === 'square');
 }
 
 function toggleShapeControls(enabled) {
@@ -154,7 +151,6 @@ function toggleShapeControls(enabled) {
     if (squareOpt) squareOpt.classList.toggle('disabled', !enabled);
     if (sliderContainer) sliderContainer.classList.toggle('disabled', !enabled);
     
-    // Also toggle overlay visibility
     var refOverlay = document.getElementById('refOverlay');
     var testOverlay = document.getElementById('testOverlay');
     if (refOverlay) refOverlay.style.display = enabled ? '' : 'none';
@@ -173,18 +169,12 @@ function initOverlayTracking() {
         
         panel.addEventListener('mousemove', function(e) {
             if (AppState.processFullImage) return;
-            
             var rect = panel.getBoundingClientRect();
-            var x = e.clientX - rect.left;
-            var y = e.clientY - rect.top;
-            
-            moveOverlays(x, y);
+            moveOverlays(e.clientX - rect.left, e.clientY - rect.top);
         });
         
         panel.addEventListener('mouseenter', function() {
-            if (!AppState.processFullImage) {
-                setOverlaysOpacity(1);
-            }
+            if (!AppState.processFullImage) setOverlaysOpacity(1);
         });
         
         panel.addEventListener('mouseleave', function() {
@@ -194,10 +184,8 @@ function initOverlayTracking() {
 }
 
 function moveOverlays(x, y) {
-    var refOverlay = document.getElementById('refOverlay');
-    var testOverlay = document.getElementById('testOverlay');
-    
-    [refOverlay, testOverlay].forEach(function(overlay) {
+    ['refOverlay', 'testOverlay'].forEach(function(id) {
+        var overlay = document.getElementById(id);
         if (overlay) {
             overlay.style.left = x + 'px';
             overlay.style.top = y + 'px';
@@ -206,40 +194,26 @@ function moveOverlays(x, y) {
 }
 
 function setOverlaysOpacity(opacity) {
-    var refOverlay = document.getElementById('refOverlay');
-    var testOverlay = document.getElementById('testOverlay');
-    
-    [refOverlay, testOverlay].forEach(function(overlay) {
-        if (overlay) {
-            overlay.style.opacity = opacity;
-        }
+    ['refOverlay', 'testOverlay'].forEach(function(id) {
+        var overlay = document.getElementById(id);
+        if (overlay) overlay.style.opacity = opacity;
     });
 }
 
 function updateOverlayShape() {
-    var refOverlay = document.getElementById('refOverlay');
-    var testOverlay = document.getElementById('testOverlay');
     var isCircle = AppState.shapeType === 'circle';
-    
-    [refOverlay, testOverlay].forEach(function(overlay) {
+    ['refOverlay', 'testOverlay'].forEach(function(id) {
+        var overlay = document.getElementById(id);
         if (overlay) {
-            overlay.classList.toggle('circle', isCircle);
-            overlay.classList.remove(isCircle ? 'square' : 'circle');
-            if (!isCircle) {
-                overlay.style.borderRadius = '0';
-            } else {
-                overlay.style.borderRadius = '50%';
-            }
+            overlay.style.borderRadius = isCircle ? '50%' : '0';
         }
     });
 }
 
 function updateOverlaySize() {
     var size = AppState.shapeSize;
-    var refOverlay = document.getElementById('refOverlay');
-    var testOverlay = document.getElementById('testOverlay');
-    
-    [refOverlay, testOverlay].forEach(function(overlay) {
+    ['refOverlay', 'testOverlay'].forEach(function(id) {
+        var overlay = document.getElementById(id);
         if (overlay) {
             overlay.style.width = size + 'px';
             overlay.style.height = size + 'px';
@@ -251,35 +225,20 @@ function updateOverlaySize() {
 // Button Handlers
 // ==========================================
 function initButtons() {
-    // Advanced Settings
     var btnSettings = document.getElementById('btnAdvancedSettings');
-    if (btnSettings) {
-        btnSettings.addEventListener('click', openModal);
-    }
+    if (btnSettings) btnSettings.addEventListener('click', openModal);
     
-    // Start Processing
     var btnProcess = document.getElementById('btnStartProcessing');
-    if (btnProcess) {
-        btnProcess.addEventListener('click', startProcessing);
-    }
+    if (btnProcess) btnProcess.addEventListener('click', startProcessing);
     
-    // Delete Images
     var btnDelete = document.getElementById('btnDeleteImages');
-    if (btnDelete) {
-        btnDelete.addEventListener('click', deleteImages);
-    }
+    if (btnDelete) btnDelete.addEventListener('click', deleteImages);
     
-    // Download Report
     var btnDownload = document.getElementById('btnDownload');
-    if (btnDownload) {
-        btnDownload.addEventListener('click', downloadReport);
-    }
+    if (btnDownload) btnDownload.addEventListener('click', downloadReport);
     
-    // Download Settings
     var btnDownloadSettings = document.getElementById('btnDownloadSettings');
-    if (btnDownloadSettings) {
-        btnDownloadSettings.addEventListener('click', downloadSettings);
-    }
+    if (btnDownloadSettings) btnDownloadSettings.addEventListener('click', downloadSettings);
 }
 
 function updateButtonStates() {
@@ -287,12 +246,12 @@ function updateButtonStates() {
     var btnProcess = document.getElementById('btnStartProcessing');
     var btnDelete = document.getElementById('btnDeleteImages');
     
-    if (btnProcess) btnProcess.disabled = !hasImages;
-    if (btnDelete) btnDelete.disabled = !hasImages;
+    if (btnProcess) btnProcess.disabled = !hasImages || AppState.isProcessing;
+    if (btnDelete) btnDelete.disabled = !hasImages || AppState.isProcessing;
 }
 
 // ==========================================
-// Processing
+// Processing with Progress
 // ==========================================
 function startProcessing() {
     if (!AppState.refFile || !AppState.testFile) {
@@ -300,9 +259,16 @@ function startProcessing() {
         return;
     }
     
-    showLoading('Uploading Images...', 'Preparing files for analysis');
+    if (AppState.isProcessing) return;
+    AppState.isProcessing = true;
+    updateButtonStates();
     
-    // Upload images
+    // Show progress modal
+    showProgressModal();
+    
+    // Start upload
+    updateProgress('upload', 0, 'Uploading images...');
+    
     var formData = new FormData();
     formData.append('reference', AppState.refFile);
     formData.append('sample', AppState.testFile);
@@ -311,45 +277,203 @@ function startProcessing() {
         method: 'POST',
         body: formData
     })
-    .then(function(response) { return response.json(); })
+    .then(function(response) {
+        if (!response.ok) {
+            return response.json().then(function(data) {
+                throw new Error(data.error || 'Upload failed');
+            });
+        }
+        return response.json();
+    })
     .then(function(data) {
         if (data.error) throw new Error(data.error);
         
         AppState.sessionId = data.session_id;
-        updateLoading('Analyzing Images...', 'Running color and pattern analysis');
+        completeStep('upload');
         
-        // Run analysis
+        // Start analysis
+        return runAnalysis();
+    })
+    .then(function(data) {
+        if (data.error) throw new Error(data.error);
+        
+        AppState.pdfFilename = data.pdf_filename;
+        AppState.isProcessing = false;
+        
+        // Complete all steps
+        completeAllSteps();
+        
+        // Show completion
+        setTimeout(function() {
+            hideProgressModal();
+            displayResults(data);
+            updateButtonStates();
+        }, 1000);
+    })
+    .catch(function(error) {
+        console.error('Processing error:', error);
+        AppState.isProcessing = false;
+        hideProgressModal();
+        updateButtonStates();
+        alert('Error: ' + error.message);
+    });
+}
+
+function runAnalysis() {
+    return new Promise(function(resolve, reject) {
         var settings = collectSettings();
-        settings.use_crop = !AppState.processFullImage;
+        // Don't use crop - process full image by default
+        // Cropping would require explicit region selection which isn't implemented
+        settings.use_crop = false;
         settings.crop_shape = AppState.shapeType;
         settings.crop_diameter = AppState.shapeSize;
         settings.crop_width = AppState.shapeSize;
         settings.crop_height = AppState.shapeSize;
         
-        return fetch('/api/analyze', {
+        // Simulate progress for each enabled section
+        var currentProgress = 10;
+        
+        if (settings.enable_color_unit) {
+            updateProgress('color', currentProgress, 'Analyzing colors...');
+            currentProgress += 25;
+        }
+        
+        setTimeout(function() {
+            if (settings.enable_pattern_unit) {
+                updateProgress('pattern', currentProgress, 'Analyzing patterns...');
+                currentProgress += 25;
+            }
+        }, 500);
+        
+        setTimeout(function() {
+            if (settings.enable_pattern_repetition) {
+                updateProgress('repetition', currentProgress, 'Analyzing repetition...');
+                currentProgress += 20;
+            }
+        }, 1000);
+        
+        setTimeout(function() {
+            updateProgress('scoring', currentProgress, 'Calculating scores...');
+        }, 1500);
+        
+        setTimeout(function() {
+            updateProgress('report', 90, 'Generating report...');
+        }, 2000);
+        
+        // Make the actual API call
+        fetch('/api/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 session_id: AppState.sessionId,
                 settings: settings
             })
-        });
-    })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
-        if (data.error) throw new Error(data.error);
-        
-        AppState.pdfFilename = data.pdf_filename;
-        hideLoading();
-        displayResults(data);
-    })
-    .catch(function(error) {
-        hideLoading();
-        alert('Error: ' + error.message);
-        console.error('Processing error:', error);
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                return response.json().then(function(data) {
+                    throw new Error(data.error || 'Analysis failed');
+                });
+            }
+            return response.json();
+        })
+        .then(resolve)
+        .catch(reject);
     });
 }
 
+// ==========================================
+// Progress Modal
+// ==========================================
+function showProgressModal() {
+    var overlay = document.getElementById('loadingOverlay');
+    var content = document.querySelector('.loading-content');
+    
+    if (content) {
+        content.innerHTML = `
+            <div class="progress-modal">
+                <div class="progress-header">
+                    <div class="spinner"></div>
+                    <h3 id="progressTitle">Processing...</h3>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+                <div class="progress-percentage" id="progressPercentage">0%</div>
+                <div class="progress-status" id="progressStatus">Preparing...</div>
+                <div class="progress-steps" id="progressSteps">
+                    <div class="step" data-step="upload"><span class="step-icon">○</span> Upload Images</div>
+                    <div class="step" data-step="color"><span class="step-icon">○</span> Color Analysis</div>
+                    <div class="step" data-step="pattern"><span class="step-icon">○</span> Pattern Analysis</div>
+                    <div class="step" data-step="repetition"><span class="step-icon">○</span> Pattern Repetition</div>
+                    <div class="step" data-step="scoring"><span class="step-icon">○</span> Calculate Scores</div>
+                    <div class="step" data-step="report"><span class="step-icon">○</span> Generate Report</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    if (overlay) overlay.style.display = 'flex';
+}
+
+function hideProgressModal() {
+    var overlay = document.getElementById('loadingOverlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+function updateProgress(step, percentage, status) {
+    var bar = document.getElementById('progressBarFill');
+    var pct = document.getElementById('progressPercentage');
+    var stat = document.getElementById('progressStatus');
+    var title = document.getElementById('progressTitle');
+    
+    if (bar) bar.style.width = percentage + '%';
+    if (pct) pct.textContent = percentage + '%';
+    if (stat) stat.textContent = status;
+    if (title) title.textContent = 'Processing... ' + percentage + '%';
+    
+    // Mark step as active
+    var stepEl = document.querySelector('.step[data-step="' + step + '"]');
+    if (stepEl) {
+        stepEl.classList.add('active');
+        var icon = stepEl.querySelector('.step-icon');
+        if (icon) icon.textContent = '●';
+    }
+}
+
+function completeStep(step) {
+    var stepEl = document.querySelector('.step[data-step="' + step + '"]');
+    if (stepEl) {
+        stepEl.classList.remove('active');
+        stepEl.classList.add('completed');
+        var icon = stepEl.querySelector('.step-icon');
+        if (icon) icon.textContent = '✓';
+    }
+}
+
+function completeAllSteps() {
+    var steps = document.querySelectorAll('.progress-steps .step');
+    steps.forEach(function(step) {
+        step.classList.remove('active');
+        step.classList.add('completed');
+        var icon = step.querySelector('.step-icon');
+        if (icon) icon.textContent = '✓';
+    });
+    
+    var bar = document.getElementById('progressBarFill');
+    var pct = document.getElementById('progressPercentage');
+    var stat = document.getElementById('progressStatus');
+    var title = document.getElementById('progressTitle');
+    
+    if (bar) bar.style.width = '100%';
+    if (pct) pct.textContent = '100%';
+    if (stat) stat.textContent = 'Processing complete!';
+    if (title) title.textContent = 'Complete!';
+}
+
+// ==========================================
+// Results Display
+// ==========================================
 function displayResults(data) {
     var resultsSection = document.getElementById('resultsSection');
     if (resultsSection) {
@@ -362,19 +486,15 @@ function displayResults(data) {
     if (badge) {
         badge.textContent = data.decision;
         badge.className = 'decision-badge';
-        if (data.decision === 'ACCEPT') {
-            badge.classList.add('accept');
-        } else if (data.decision.indexOf('CONDITIONAL') >= 0) {
-            badge.classList.add('conditional');
-        } else {
-            badge.classList.add('reject');
-        }
+        if (data.decision === 'ACCEPT') badge.classList.add('accept');
+        else if (data.decision.indexOf('CONDITIONAL') >= 0) badge.classList.add('conditional');
+        else badge.classList.add('reject');
     }
     
-    // Scores
-    animateScore('colorScore', 'colorBar', data.color_score);
-    animateScore('patternScore', 'patternBar', data.pattern_score);
-    animateScore('overallScore', 'overallBar', data.overall_score);
+    // Animate scores
+    animateScore('colorScore', 'colorBar', data.color_score || 0);
+    animateScore('patternScore', 'patternBar', data.pattern_score || 0);
+    animateScore('overallScore', 'overallBar', data.overall_score || 0);
     
     // Enable download
     var btnDownload = document.getElementById('btnDownload');
@@ -387,7 +507,7 @@ function animateScore(valueId, barId, score) {
     
     if (valueEl) {
         var current = 0;
-        var step = score / 30;
+        var step = Math.max(score / 30, 1);
         var interval = setInterval(function() {
             current += step;
             if (current >= score) {
@@ -395,7 +515,7 @@ function animateScore(valueId, barId, score) {
                 clearInterval(interval);
             }
             valueEl.textContent = current.toFixed(1);
-        }, 20);
+        }, 25);
     }
     
     if (barEl) {
@@ -409,16 +529,17 @@ function animateScore(valueId, barId, score) {
     }
 }
 
+// ==========================================
+// Delete Images
+// ==========================================
 function deleteImages() {
-    if (!confirm('Are you sure you want to delete all images?')) return;
+    if (!confirm('Delete all images and start over?')) return;
     
-    // Reset state
     AppState.sessionId = null;
     AppState.refFile = null;
     AppState.testFile = null;
     AppState.pdfFilename = null;
     
-    // Reset UI
     ['ref', 'test'].forEach(function(type) {
         var preview = document.getElementById(type + 'Preview');
         var placeholder = document.getElementById(type + 'Placeholder');
@@ -431,11 +552,9 @@ function deleteImages() {
         if (input) input.value = '';
     });
     
-    // Hide results
     var resultsSection = document.getElementById('resultsSection');
     if (resultsSection) resultsSection.style.display = 'none';
     
-    // Reset scores
     ['colorScore', 'patternScore', 'overallScore'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.textContent = '--';
@@ -452,6 +571,9 @@ function deleteImages() {
     updateButtonStates();
 }
 
+// ==========================================
+// Downloads
+// ==========================================
 function downloadReport() {
     if (AppState.sessionId && AppState.pdfFilename) {
         window.open('/api/download/' + AppState.sessionId + '/' + AppState.pdfFilename, '_blank');
@@ -472,32 +594,6 @@ function downloadSettings() {
 }
 
 // ==========================================
-// Loading Overlay
-// ==========================================
-function showLoading(title, text) {
-    var overlay = document.getElementById('loadingOverlay');
-    var titleEl = document.getElementById('loadingTitle');
-    var textEl = document.getElementById('loadingText');
-    
-    if (titleEl) titleEl.textContent = title || 'Processing...';
-    if (textEl) textEl.textContent = text || 'Please wait';
-    if (overlay) overlay.style.display = 'flex';
-}
-
-function updateLoading(title, text) {
-    var titleEl = document.getElementById('loadingTitle');
-    var textEl = document.getElementById('loadingText');
-    
-    if (titleEl) titleEl.textContent = title;
-    if (textEl) textEl.textContent = text;
-}
-
-function hideLoading() {
-    var overlay = document.getElementById('loadingOverlay');
-    if (overlay) overlay.style.display = 'none';
-}
-
-// ==========================================
 // Modal
 // ==========================================
 function initModal() {
@@ -515,23 +611,19 @@ function initModal() {
     });
     if (resetBtn) resetBtn.addEventListener('click', loadDefaultSettings);
     
-    // Close on backdrop click
     if (overlay) {
         overlay.addEventListener('click', function(e) {
             if (e.target === overlay) closeModal();
         });
     }
     
-    // Tab switching
     var tabs = document.querySelectorAll('.modal-tabs .tab');
     tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
-            var tabName = this.getAttribute('data-tab');
-            switchTab(tabName);
+            switchTab(this.getAttribute('data-tab'));
         });
     });
     
-    // Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeModal();
     });
@@ -550,15 +642,10 @@ function closeModal() {
 }
 
 function switchTab(tabName) {
-    // Update tab buttons
-    var tabs = document.querySelectorAll('.modal-tabs .tab');
-    tabs.forEach(function(tab) {
+    document.querySelectorAll('.modal-tabs .tab').forEach(function(tab) {
         tab.classList.toggle('active', tab.getAttribute('data-tab') === tabName);
     });
-    
-    // Update tab contents
-    var contents = document.querySelectorAll('.tab-content');
-    contents.forEach(function(content) {
+    document.querySelectorAll('.tab-content').forEach(function(content) {
         content.classList.toggle('active', content.id === 'tab-' + tabName);
     });
 }
@@ -568,70 +655,49 @@ function switchTab(tabName) {
 // ==========================================
 function collectSettings() {
     return {
-        delta_e_threshold: getNumberValue('delta_e_threshold', 2.0),
-        delta_e_conditional: getNumberValue('delta_e_conditional', 3.5),
-        ssim_pass_threshold: getNumberValue('ssim_pass_threshold', 0.95),
-        ssim_conditional_threshold: getNumberValue('ssim_conditional_threshold', 0.90),
-        color_score_threshold: getNumberValue('color_score_threshold', 70),
-        pattern_score_threshold: getNumberValue('pattern_score_threshold', 90),
-        overall_score_threshold: getNumberValue('overall_score_threshold', 70),
-        use_delta_e_cmc: getCheckboxValue('use_delta_e_cmc', true),
-        cmc_l_c_ratio: getSelectValue('cmc_l_c_ratio', '2:1'),
-        observer_angle: getSelectValue('observer_angle', '2'),
-        geometry_mode: getSelectValue('geometry_mode', 'd/8 SCI'),
-        lbp_points: getNumberValue('lbp_points', 24),
-        lbp_radius: getNumberValue('lbp_radius', 3),
-        wavelet_type: getSelectValue('wavelet_type', 'db4'),
-        wavelet_levels: getNumberValue('wavelet_levels', 3),
-        pattern_min_area: getNumberValue('pattern_min_area', 100),
-        pattern_max_area: getNumberValue('pattern_max_area', 5000),
-        keypoint_detector: getSelectValue('keypoint_detector', 'ORB'),
-        enable_color_unit: getCheckboxValue('enable_color_unit', true),
-        enable_pattern_unit: getCheckboxValue('enable_pattern_unit', true),
-        enable_pattern_repetition: getCheckboxValue('enable_pattern_repetition', true),
-        enable_spectrophotometer: getCheckboxValue('enable_spectrophotometer', true),
-        enable_analysis_settings: getCheckboxValue('enable_analysis_settings', false),
-        operator_name: getTextValue('operator_name', 'Operator')
+        delta_e_threshold: getNum('delta_e_threshold', 2.0),
+        delta_e_conditional: getNum('delta_e_conditional', 3.5),
+        ssim_pass_threshold: getNum('ssim_pass_threshold', 0.95),
+        ssim_conditional_threshold: getNum('ssim_conditional_threshold', 0.90),
+        color_score_threshold: getNum('color_score_threshold', 70),
+        pattern_score_threshold: getNum('pattern_score_threshold', 90),
+        overall_score_threshold: getNum('overall_score_threshold', 70),
+        use_delta_e_cmc: getCheck('use_delta_e_cmc', true),
+        cmc_l_c_ratio: getVal('cmc_l_c_ratio', '2:1'),
+        observer_angle: getVal('observer_angle', '2'),
+        geometry_mode: getVal('geometry_mode', 'd/8 SCI'),
+        lbp_points: getNum('lbp_points', 24),
+        lbp_radius: getNum('lbp_radius', 3),
+        wavelet_type: getVal('wavelet_type', 'db4'),
+        wavelet_levels: getNum('wavelet_levels', 3),
+        pattern_min_area: getNum('pattern_min_area', 100),
+        pattern_max_area: getNum('pattern_max_area', 5000),
+        keypoint_detector: getVal('keypoint_detector', 'ORB'),
+        enable_color_unit: getCheck('enable_color_unit', true),
+        enable_pattern_unit: getCheck('enable_pattern_unit', true),
+        enable_pattern_repetition: getCheck('enable_pattern_repetition', true),
+        enable_spectrophotometer: getCheck('enable_spectrophotometer', true),
+        enable_analysis_settings: getCheck('enable_analysis_settings', false),
+        operator_name: getVal('operator_name', 'Operator')
     };
 }
 
-function getNumberValue(id, defaultVal) {
-    var el = document.getElementById(id);
-    return el ? parseFloat(el.value) || defaultVal : defaultVal;
-}
-
-function getCheckboxValue(id, defaultVal) {
-    var el = document.getElementById(id);
-    return el ? el.checked : defaultVal;
-}
-
-function getSelectValue(id, defaultVal) {
-    var el = document.getElementById(id);
-    return el ? el.value : defaultVal;
-}
-
-function getTextValue(id, defaultVal) {
-    var el = document.getElementById(id);
-    return el ? el.value : defaultVal;
-}
+function getNum(id, def) { var el = document.getElementById(id); return el ? (parseFloat(el.value) || def) : def; }
+function getCheck(id, def) { var el = document.getElementById(id); return el ? el.checked : def; }
+function getVal(id, def) { var el = document.getElementById(id); return el ? el.value : def; }
 
 function loadDefaultSettings() {
     fetch('/api/settings/default')
-        .then(function(response) { return response.json(); })
+        .then(function(r) { return r.json(); })
         .then(function(defaults) {
             Object.keys(defaults).forEach(function(key) {
                 var el = document.getElementById(key);
                 if (el) {
-                    if (el.type === 'checkbox') {
-                        el.checked = defaults[key];
-                    } else {
-                        el.value = defaults[key];
-                    }
+                    if (el.type === 'checkbox') el.checked = defaults[key];
+                    else el.value = defaults[key];
                 }
             });
             AppState.settings = defaults;
         })
-        .catch(function(error) {
-            console.error('Error loading settings:', error);
-        });
+        .catch(function(e) { console.error('Settings error:', e); });
 }
