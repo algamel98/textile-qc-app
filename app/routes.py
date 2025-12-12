@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 API Routes for Textile QC Web Application
+Robust version with improved error handling
 """
 import os
 import uuid
@@ -127,7 +128,7 @@ def get_image(session_id, image_type):
 
 @main_bp.route('/api/analyze', methods=['POST'])
 def analyze():
-    """Run analysis pipeline"""
+    """Run analysis pipeline with robust error handling"""
     try:
         data = request.get_json()
         
@@ -157,7 +158,10 @@ def analyze():
         from app.core.settings import QCSettings
         settings = QCSettings()
         if 'settings' in data:
-            settings = QCSettings.from_dict(data['settings'])
+            try:
+                settings = QCSettings.from_dict(data['settings'])
+            except Exception as e:
+                logger.warning(f"Settings parsing error: {e}, using defaults")
         
         # Read images
         from app.core.image_utils import read_rgb, to_same_size
@@ -169,56 +173,112 @@ def analyze():
         output_dir = os.path.join(current_app.config['OUTPUT_FOLDER'], session_id)
         os.makedirs(output_dir, exist_ok=True)
         
-        # Run analysis
+        # Run analysis with error handling
         logger.info(f"Starting analysis for session {session_id}")
         
-        from app.pipeline.runner import run_analysis_pipeline
-        results = run_analysis_pipeline(ref_path, test_path, ref, test, settings, output_dir)
+        results = None
+        try:
+            from app.pipeline.runner import run_analysis_pipeline
+            results = run_analysis_pipeline(ref_path, test_path, ref, test, settings, output_dir)
+        except Exception as e:
+            logger.error(f"Pipeline execution error: {e}")
+            logger.error(traceback.format_exc())
+            # Create minimal results
+            results = {
+                'decision': 'ERROR',
+                'color_score': 0,
+                'pattern_score': 0,
+                'overall_score': 0,
+                'error': str(e)
+            }
+        
+        # Ensure we have valid results
+        if results is None:
+            results = {
+                'decision': 'ERROR',
+                'color_score': 0,
+                'pattern_score': 0,
+                'overall_score': 0,
+                'error': 'Analysis returned no results'
+            }
         
         # Check for errors
         if results.get('decision') == 'ERROR':
-            return jsonify({
-                'error': results.get('error', 'Analysis failed'),
-                'session_id': session_id
-            }), 500
+            logger.error(f"Analysis error: {results.get('error', 'Unknown error')}")
+            # Still try to return a valid response
+            response = {
+                'session_id': session_id,
+                'decision': 'ERROR',
+                'color_score': float(results.get('color_score', 0)),
+                'pattern_score': float(results.get('pattern_score', 0)),
+                'overall_score': float(results.get('overall_score', 0)),
+                'error': str(results.get('error', 'Analysis failed')),
+                'pdf_filename': ''
+            }
+            return jsonify(response), 200  # Return 200 to prevent JSON parse error
         
-        # Prepare response
+        # Ensure PDF path exists
+        pdf_path = results.get('pdf_path', '')
+        pdf_filename = os.path.basename(pdf_path) if pdf_path else ''
+        
+        # If no PDF was created, try to create one
+        if not pdf_filename or not os.path.exists(pdf_path):
+            logger.warning("PDF not found, attempting to create fallback")
+            try:
+                from app.report.pdf_builder import create_fallback_pdf
+                pdf_path = create_fallback_pdf(results, settings, output_dir)
+                pdf_filename = os.path.basename(pdf_path)
+                logger.info(f"Fallback PDF created: {pdf_filename}")
+            except Exception as e:
+                logger.error(f"Fallback PDF failed: {e}")
+                pdf_filename = 'report_unavailable.pdf'
+        
+        # Prepare response - ensure all values are JSON serializable
         response = {
             'session_id': session_id,
-            'decision': results.get('decision', 'N/A'),
-            'color_score': results.get('color_score', 0),
-            'pattern_score': results.get('pattern_score', 0),
-            'overall_score': results.get('overall_score', 0),
-            'pdf_filename': os.path.basename(results.get('pdf_path', 'report.pdf')),
+            'decision': str(results.get('decision', 'N/A')),
+            'color_score': float(results.get('color_score', 0)),
+            'pattern_score': float(results.get('pattern_score', 0)),
+            'overall_score': float(results.get('overall_score', 0)),
+            'pdf_filename': pdf_filename,
         }
         
-        # Add metrics if available
+        # Add metrics if available (only serializable values)
         if 'color_metrics' in results:
-            response['color_metrics'] = {
-                k: v for k, v in results['color_metrics'].items()
-                if isinstance(v, (int, float, str))
-            }
+            response['color_metrics'] = {}
+            for k, v in results['color_metrics'].items():
+                if isinstance(v, (int, float, str, bool)):
+                    response['color_metrics'][k] = v
         
         if 'pattern_metrics' in results:
-            response['pattern_metrics'] = {
-                k: v for k, v in results['pattern_metrics'].items()
-                if isinstance(v, (int, float, str))
-            }
+            response['pattern_metrics'] = {}
+            for k, v in results['pattern_metrics'].items():
+                if isinstance(v, (int, float, str, bool)):
+                    response['pattern_metrics'][k] = v
         
         if 'pattern_repetition' in results:
-            response['pattern_repetition'] = {
-                k: v for k, v in results['pattern_repetition'].items()
-                if isinstance(v, (int, float, str))
-            }
+            response['pattern_repetition'] = {}
+            for k, v in results['pattern_repetition'].items():
+                if isinstance(v, (int, float, str, bool)):
+                    response['pattern_repetition'][k] = v
         
         logger.info(f"Analysis complete for session {session_id}: {results.get('decision')}")
         
         return jsonify(response)
         
     except Exception as e:
-        logger.error(f"Analysis error: {str(e)}")
+        logger.error(f"Analysis endpoint error: {str(e)}")
         logger.error(traceback.format_exc())
-        return jsonify({'error': f'Analysis failed: {str(e)}'}), 500
+        # Always return valid JSON
+        return jsonify({
+            'session_id': data.get('session_id', '') if data else '',
+            'decision': 'ERROR',
+            'color_score': 0,
+            'pattern_score': 0,
+            'overall_score': 0,
+            'error': f'Analysis failed: {str(e)}',
+            'pdf_filename': ''
+        }), 200  # Return 200 to prevent JSON parse error on client
 
 
 @main_bp.route('/api/download/<session_id>/<filename>')

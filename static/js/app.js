@@ -315,7 +315,16 @@ function startProcessing() {
         AppState.isProcessing = false;
         hideProgressModal();
         updateButtonStates();
-        alert('Error: ' + error.message);
+        
+        // Show more detailed error message
+        var errorMsg = error.message || 'Unknown error occurred';
+        if (errorMsg.includes('timeout')) {
+            errorMsg = 'The analysis is taking too long. Please try with smaller images or fewer analysis options.';
+        } else if (errorMsg.includes('Empty response') || errorMsg.includes('Invalid response')) {
+            errorMsg = 'Server did not respond correctly. Please try again or check server logs.';
+        }
+        
+        alert('Analysis Error:\n\n' + errorMsg);
     });
 }
 
@@ -323,7 +332,6 @@ function runAnalysis() {
     return new Promise(function(resolve, reject) {
         var settings = collectSettings();
         // Don't use crop - process full image by default
-        // Cropping would require explicit region selection which isn't implemented
         settings.use_crop = false;
         settings.crop_shape = AppState.shapeType;
         settings.crop_diameter = AppState.shapeSize;
@@ -360,25 +368,50 @@ function runAnalysis() {
             updateProgress('report', 90, 'Generating report...');
         }, 2000);
         
-        // Make the actual API call
+        // Make the actual API call with timeout handling
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function() {
+            controller.abort();
+        }, 300000); // 5 minute timeout
+        
         fetch('/api/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 session_id: AppState.sessionId,
                 settings: settings
-            })
+            }),
+            signal: controller.signal
         })
         .then(function(response) {
-            if (!response.ok) {
-                return response.json().then(function(data) {
-                    throw new Error(data.error || 'Analysis failed');
-                });
-            }
-            return response.json();
+            clearTimeout(timeoutId);
+            // First, try to get the text content
+            return response.text().then(function(text) {
+                if (!text || text.trim() === '') {
+                    throw new Error('Empty response from server');
+                }
+                try {
+                    var data = JSON.parse(text);
+                    // Check for error in response
+                    if (data.error && data.decision === 'ERROR') {
+                        throw new Error(data.error);
+                    }
+                    return data;
+                } catch (parseError) {
+                    console.error('JSON parse error:', parseError, 'Response:', text.substring(0, 200));
+                    throw new Error('Invalid response from server');
+                }
+            });
         })
         .then(resolve)
-        .catch(reject);
+        .catch(function(error) {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                reject(new Error('Analysis timeout - server is taking too long'));
+            } else {
+                reject(error);
+            }
+        });
     });
 }
 
@@ -521,7 +554,7 @@ function animateScore(valueId, barId, score) {
     if (barEl) {
         setTimeout(function() {
             barEl.style.width = score + '%';
-            barEl.className = 'bar-fill';
+    barEl.className = 'bar-fill';
             if (score >= 70) barEl.classList.add('success');
             else if (score >= 50) barEl.classList.add('warning');
             else barEl.classList.add('danger');
