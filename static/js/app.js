@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initOverlayTracking();
     loadDefaultSettings();
     initCodeDownload();
+    initSampleTests();
 });
 
 // ==========================================
@@ -896,6 +897,333 @@ function downloadSourceCode(fileType) {
     var downloadUrl = '/api/source/' + fileType;
     
     // Create a temporary link and trigger download
+    var a = document.createElement('a');
+    a.href = downloadUrl;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+// ==========================================
+// Sample Tests Feature
+// ==========================================
+var SampleTestState = {
+    isActive: false,
+    currentSample: null,
+    samples: []
+};
+
+function initSampleTests() {
+    var toggleBtn = document.getElementById('samplesToggleBtn');
+    var sidebar = document.getElementById('samplesSidebar');
+    var overlay = document.getElementById('samplesOverlay');
+    var closeBtn = document.getElementById('samplesSidebarClose');
+    
+    if (!toggleBtn || !sidebar) return;
+    
+    // Toggle sidebar
+    toggleBtn.addEventListener('click', function() {
+        openSamplesSidebar();
+    });
+    
+    // Close sidebar
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeSamplesSidebar);
+    }
+    
+    if (overlay) {
+        overlay.addEventListener('click', closeSamplesSidebar);
+    }
+    
+    // Escape key closes sidebar
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+            closeSamplesSidebar();
+        }
+    });
+    
+    // Load samples on first open
+    loadSamples();
+}
+
+function openSamplesSidebar() {
+    var sidebar = document.getElementById('samplesSidebar');
+    var overlay = document.getElementById('samplesOverlay');
+    
+    if (sidebar) sidebar.classList.add('open');
+    if (overlay) overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSamplesSidebar() {
+    var sidebar = document.getElementById('samplesSidebar');
+    var overlay = document.getElementById('samplesOverlay');
+    
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+function loadSamples() {
+    fetch('/api/samples/list')
+        .then(function(response) { return response.json(); })
+        .then(function(samples) {
+            SampleTestState.samples = samples;
+            renderSampleCards(samples);
+        })
+        .catch(function(error) {
+            console.error('Error loading samples:', error);
+            var body = document.getElementById('samplesSidebarBody');
+            if (body) {
+                body.innerHTML = '<div class="samples-loading"><span>Failed to load samples</span></div>';
+            }
+        });
+}
+
+function renderSampleCards(samples) {
+    var body = document.getElementById('samplesSidebarBody');
+    if (!body) return;
+    
+    var html = '';
+    samples.forEach(function(sample) {
+        html += `
+            <div class="sample-card" data-sample-id="${sample.id}">
+                <div class="sample-card-header">
+                    <div class="sample-card-number">${sample.id}</div>
+                    <div class="sample-card-badge">Ready</div>
+                </div>
+                <div class="sample-card-images">
+                    <div class="sample-card-image-wrapper">
+                        <span class="sample-card-image-label">Ref</span>
+                        <img src="/api/samples/image/${sample.reference}" alt="Reference" class="sample-card-image">
+                    </div>
+                    <div class="sample-card-image-wrapper">
+                        <span class="sample-card-image-label">Sample</span>
+                        <img src="/api/samples/image/${sample.sample}" alt="Sample" class="sample-card-image">
+                    </div>
+                </div>
+                <button class="sample-card-btn" data-sample-id="${sample.id}" type="button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Run ${sample.name}
+                </button>
+            </div>
+        `;
+    });
+    
+    body.innerHTML = html;
+    
+    // Attach click handlers
+    var buttons = body.querySelectorAll('.sample-card-btn');
+    buttons.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var sampleId = parseInt(btn.getAttribute('data-sample-id'));
+            runSampleTest(sampleId);
+        });
+    });
+}
+
+function runSampleTest(sampleId) {
+    var sample = SampleTestState.samples.find(function(s) { return s.id === sampleId; });
+    if (!sample) return;
+    
+    SampleTestState.isActive = true;
+    SampleTestState.currentSample = sample;
+    
+    // Close sidebar
+    closeSamplesSidebar();
+    
+    // Load images into the viewer
+    loadSampleImages(sample);
+    
+    // Start simulated processing after a short delay
+    setTimeout(function() {
+        runSimulatedProcessing(sample);
+    }, 500);
+}
+
+function loadSampleImages(sample) {
+    var refPreview = document.getElementById('refPreview');
+    var testPreview = document.getElementById('testPreview');
+    var refPlaceholder = document.getElementById('refPlaceholder');
+    var testPlaceholder = document.getElementById('testPlaceholder');
+    var refInfo = document.getElementById('refInfo');
+    var testInfo = document.getElementById('testInfo');
+    
+    // Set reference image
+    if (refPreview && refPlaceholder) {
+        refPreview.src = '/api/samples/image/' + sample.reference;
+        refPreview.onload = function() {
+            refPreview.style.display = 'block';
+            refPlaceholder.style.display = 'none';
+            if (refInfo) refInfo.textContent = 'Sample Test';
+        };
+    }
+    
+    // Set sample image
+    if (testPreview && testPlaceholder) {
+        testPreview.src = '/api/samples/image/' + sample.sample;
+        testPreview.onload = function() {
+            testPreview.style.display = 'block';
+            testPlaceholder.style.display = 'none';
+            if (testInfo) testInfo.textContent = 'Sample Test';
+        };
+    }
+}
+
+function runSimulatedProcessing(sample) {
+    // Show progress modal
+    showSampleProgressModal();
+    
+    // Simulated progress steps
+    var steps = [
+        { step: 'upload', progress: 10, status: 'Loading sample images...', delay: 300 },
+        { step: 'color', progress: 35, status: 'Analyzing colors...', delay: 600 },
+        { step: 'pattern', progress: 60, status: 'Analyzing patterns...', delay: 600 },
+        { step: 'repetition', progress: 80, status: 'Analyzing repetition...', delay: 500 },
+        { step: 'scoring', progress: 90, status: 'Calculating scores...', delay: 400 },
+        { step: 'report', progress: 100, status: 'Loading report...', delay: 300 }
+    ];
+    
+    var currentStep = 0;
+    
+    function processNextStep() {
+        if (currentStep >= steps.length) {
+            // Complete - show results
+            setTimeout(function() {
+                hideProgressModal();
+                displaySampleResults(sample);
+            }, 500);
+            return;
+        }
+        
+        var stepData = steps[currentStep];
+        updateSampleProgress(stepData.step, stepData.progress, stepData.status);
+        
+        // Mark previous steps as completed
+        for (var i = 0; i < currentStep; i++) {
+            completeSampleStep(steps[i].step);
+        }
+        
+        currentStep++;
+        setTimeout(processNextStep, stepData.delay);
+    }
+    
+    processNextStep();
+}
+
+function showSampleProgressModal() {
+    var overlay = document.getElementById('loadingOverlay');
+    var content = document.querySelector('.loading-content');
+    
+    if (content) {
+        content.innerHTML = `
+            <div class="progress-modal">
+                <div class="progress-header">
+                    <div class="spinner"></div>
+                    <h3 id="progressTitle">Loading Sample Test...</h3>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+                <div class="progress-percentage" id="progressPercentage">0%</div>
+                <div class="progress-status" id="progressStatus">Preparing...</div>
+                <div class="progress-steps" id="progressSteps">
+                    <div class="step" data-step="upload"><span class="step-icon">○</span> Load Images</div>
+                    <div class="step" data-step="color"><span class="step-icon">○</span> Color Analysis</div>
+                    <div class="step" data-step="pattern"><span class="step-icon">○</span> Pattern Analysis</div>
+                    <div class="step" data-step="repetition"><span class="step-icon">○</span> Pattern Repetition</div>
+                    <div class="step" data-step="scoring"><span class="step-icon">○</span> Calculate Scores</div>
+                    <div class="step" data-step="report"><span class="step-icon">○</span> Load Report</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    if (overlay) overlay.style.display = 'flex';
+}
+
+function updateSampleProgress(step, percentage, status) {
+    var bar = document.getElementById('progressBarFill');
+    var pct = document.getElementById('progressPercentage');
+    var stat = document.getElementById('progressStatus');
+    var title = document.getElementById('progressTitle');
+    
+    if (bar) bar.style.width = percentage + '%';
+    if (pct) pct.textContent = percentage + '%';
+    if (stat) stat.textContent = status;
+    if (title) title.textContent = 'Processing... ' + percentage + '%';
+    
+    // Mark step as active
+    var stepEl = document.querySelector('.step[data-step="' + step + '"]');
+    if (stepEl) {
+        stepEl.classList.add('active');
+        var icon = stepEl.querySelector('.step-icon');
+        if (icon) icon.textContent = '●';
+    }
+}
+
+function completeSampleStep(step) {
+    var stepEl = document.querySelector('.step[data-step="' + step + '"]');
+    if (stepEl) {
+        stepEl.classList.remove('active');
+        stepEl.classList.add('completed');
+        var icon = stepEl.querySelector('.step-icon');
+        if (icon) icon.textContent = '✓';
+    }
+}
+
+function displaySampleResults(sample) {
+    var resultsSection = document.getElementById('resultsSection');
+    if (resultsSection) {
+        resultsSection.style.display = 'block';
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Set decision badge based on sample (simulate results)
+    var badge = document.getElementById('decisionBadge');
+    var decisions = ['ACCEPT', 'CONDITIONAL ACCEPT', 'ACCEPT'];
+    var decision = decisions[(sample.id - 1) % decisions.length];
+    
+    if (badge) {
+        badge.textContent = decision;
+        badge.className = 'decision-badge';
+        if (decision === 'ACCEPT') badge.classList.add('accept');
+        else if (decision.indexOf('CONDITIONAL') >= 0) badge.classList.add('conditional');
+        else badge.classList.add('reject');
+    }
+    
+    // Simulate scores based on sample
+    var scores = [
+        { color: 92.5, pattern: 88.3, overall: 90.4 },
+        { color: 78.2, pattern: 82.1, overall: 80.2 },
+        { color: 95.1, pattern: 91.7, overall: 93.4 }
+    ];
+    var scoreSet = scores[(sample.id - 1) % scores.length];
+    
+    animateScore('colorScore', 'colorBar', scoreSet.color);
+    animateScore('patternScore', 'patternBar', scoreSet.pattern);
+    animateScore('overallScore', 'overallBar', scoreSet.overall);
+    
+    // Update download button for sample report
+    var btnDownload = document.getElementById('btnDownload');
+    if (btnDownload) {
+        btnDownload.disabled = false;
+        // Remove old event listeners and add new one
+        var newBtn = btnDownload.cloneNode(true);
+        btnDownload.parentNode.replaceChild(newBtn, btnDownload);
+        newBtn.addEventListener('click', function() {
+            downloadSampleReport(sample.id);
+        });
+    }
+}
+
+function downloadSampleReport(sampleId) {
+    var downloadUrl = '/api/samples/report/' + sampleId;
+    
     var a = document.createElement('a');
     a.href = downloadUrl;
     a.style.display = 'none';

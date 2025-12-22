@@ -378,3 +378,90 @@ def download_source(file_type):
     except Exception as e:
         logger.error(f"Source download error: {str(e)}")
         return jsonify({'error': 'Failed to download source file'}), 500
+
+
+# ==========================================
+# Sample Tests Routes
+# ==========================================
+@main_bp.route('/api/samples/image/<image_name>')
+def get_sample_image(image_name):
+    """Serve sample images from Samples/images folder"""
+    try:
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        samples_dir = os.path.join(project_root, 'Samples', 'images')
+        
+        if not os.path.exists(samples_dir):
+            return jsonify({'error': 'Samples folder not found'}), 404
+        
+        # Add .png extension if not present
+        if not image_name.endswith('.png'):
+            image_name = f'{image_name}.png'
+        
+        file_path = os.path.join(samples_dir, image_name)
+        
+        if not os.path.exists(file_path):
+            return jsonify({'error': 'Sample image not found'}), 404
+        
+        return send_from_directory(samples_dir, image_name)
+        
+    except Exception as e:
+        logger.error(f"Sample image error: {str(e)}")
+        return jsonify({'error': 'Failed to serve sample image'}), 500
+
+
+@main_bp.route('/api/samples/report/<int:sample_num>')
+def download_sample_report(sample_num):
+    """Download pre-generated sample reports"""
+    try:
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        reports_dir = os.path.join(project_root, 'Samples', 'REPORTS')
+        
+        if not os.path.exists(reports_dir):
+            return jsonify({'error': 'Reports folder not found'}), 404
+        
+        # Map sample number to report file
+        report_filename = f'REPORT{sample_num}.pdf'
+        file_path = os.path.join(reports_dir, report_filename)
+        
+        if not os.path.exists(file_path):
+            return jsonify({'error': f'Report {sample_num} not found'}), 404
+        
+        return send_file(
+            file_path,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f'TextileQC_Sample{sample_num}_Report.pdf'
+        )
+        
+    except Exception as e:
+        logger.error(f"Sample report download error: {str(e)}")
+        return jsonify({'error': 'Failed to download sample report'}), 500
+
+
+@main_bp.route('/api/samples/list')
+def get_samples_list():
+    """Get list of available sample tests"""
+    samples = [
+        {
+            'id': 1,
+            'name': 'Sample 1',
+            'reference': '0011',
+            'sample': '0012',
+            'report': 'REPORT1.pdf'
+        },
+        {
+            'id': 2,
+            'name': 'Sample 2',
+            'reference': '0021',
+            'sample': '0022',
+            'report': 'REPORT2.pdf'
+        },
+        {
+            'id': 3,
+            'name': 'Sample 3',
+            'reference': '0031',
+            'sample': '0032',
+            'report': 'REPORT3.pdf'
+        }
+    ]
+    return jsonify(samples)

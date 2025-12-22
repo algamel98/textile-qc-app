@@ -8,6 +8,40 @@
     <link rel="icon" type="image/png" href="/static/images/logo_square_no_name_1024x1024.png">
 </head>
 <body>
+    <!-- Sample Tests Side Menu Toggle Button -->
+    <button class="samples-toggle-btn" id="samplesToggleBtn" type="button" title="Sample Tests">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>Samples</span>
+    </button>
+
+    <!-- Sample Tests Side Menu -->
+    <div class="samples-sidebar" id="samplesSidebar">
+        <div class="samples-sidebar-header">
+            <div class="samples-sidebar-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>Sample Tests</span>
+            </div>
+            <button class="samples-sidebar-close" id="samplesSidebarClose" type="button">&times;</button>
+        </div>
+        <div class="samples-sidebar-body" id="samplesSidebarBody">
+            <!-- Sample cards will be injected by JavaScript -->
+            <div class="samples-loading">
+                <div class="spinner-small"></div>
+                <span>Loading samples...</span>
+            </div>
+        </div>
+        <div class="samples-sidebar-footer">
+            <p>Pre-configured tests with generated reports</p>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="samples-overlay" id="samplesOverlay"></div>
+
     <!-- Header -->
     <header class="header">
         <div class="header-left">
