@@ -1,10 +1,6 @@
 /**
  * Textile QC System - Main Application
-<<<<<<< HEAD
- * Version 2.0.0 - With Progress Tracking & Multilingual Support
-=======
  * Version 2.0.0 - With Progress Tracking
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
  */
 
 // ==========================================
@@ -19,281 +15,7 @@ var AppState = {
     processFullImage: false,
     pdfFilename: null,
     settings: {},
-<<<<<<< HEAD
-    isProcessing: false,
-    currentLanguage: 'en'
-};
-
-// ==========================================
-// Translations - English and Turkish
-// ==========================================
-var Translations = {
-    en: {
-        // Header
-        header_title: 'Textile QC System',
-        header_subtitle: 'Professional Color & Pattern Analysis',
-        
-        // Page
-        page_title: 'Image Quality Control Analysis',
-        page_subtitle: 'Upload reference and sample images to begin quality control analysis',
-        
-        // Image panels
-        reference_image: 'Reference Image',
-        sample_image: 'Sample Image',
-        no_image: 'No image',
-        click_to_upload: 'Click to upload',
-        
-        // Shape controls
-        circle: 'Circle',
-        square: 'Square',
-        process_entire_image: 'Process Entire Image',
-        size_px: 'Size (px):',
-        
-        // Buttons
-        advanced_settings: 'Advanced Settings',
-        start_processing: 'Start Processing',
-        delete_images: 'Delete Images',
-        
-        // Results
-        analysis_results: 'Analysis Results',
-        pending: 'PENDING',
-        accept: 'ACCEPT',
-        reject: 'REJECT',
-        conditional_accept: 'CONDITIONAL ACCEPT',
-        color_score: 'Color Score',
-        pattern_score: 'Pattern Score',
-        overall_score: 'Overall Score',
-        download_report: 'Download Report (PDF)',
-        download_settings: 'Download Settings',
-        
-        // Modal
-        configure_parameters: 'Configure analysis parameters',
-        thresholds: 'Thresholds',
-        color_analysis: 'Color Analysis',
-        pattern_analysis: 'Pattern Analysis',
-        report_sections: 'Report Sections',
-        
-        // Thresholds
-        color_thresholds: 'Color Thresholds',
-        delta_e_pass_threshold: 'ΔE Pass Threshold',
-        delta_e_conditional_threshold: 'ΔE Conditional Threshold',
-        pattern_thresholds: 'Pattern Thresholds',
-        ssim_pass_threshold: 'SSIM Pass Threshold',
-        ssim_conditional_threshold: 'SSIM Conditional Threshold',
-        score_thresholds: 'Score Thresholds',
-        color_score_threshold: 'Color Score Threshold',
-        pattern_score_threshold: 'Pattern Score Threshold',
-        overall_score_threshold: 'Overall Score Threshold',
-        
-        // Color Analysis
-        color_difference_methods: 'Color Difference Methods',
-        use_cmc_color_difference: 'Use CMC Color Difference',
-        cmc_ratio: 'CMC l:c Ratio',
-        cmc_acceptability: '2:1 (Acceptability)',
-        cmc_perceptibility: '1:1 (Perceptibility)',
-        spectrophotometer_settings: 'Spectrophotometer Settings',
-        observer_angle: 'Observer Angle',
-        observer_2_degree: '2° Standard Observer',
-        observer_10_degree: '10° Standard Observer',
-        geometry_mode: 'Geometry Mode',
-        
-        // Pattern Analysis
-        texture_parameters: 'Texture Parameters',
-        lbp_points: 'LBP Points',
-        lbp_radius: 'LBP Radius',
-        wavelet_type: 'Wavelet Type',
-        wavelet_levels: 'Wavelet Levels',
-        pattern_repetition: 'Pattern Repetition',
-        pattern_min_area: 'Pattern Min Area (px)',
-        pattern_max_area: 'Pattern Max Area (px)',
-        keypoint_detector: 'Keypoint Detector',
-        
-        // Report Sections
-        color_unit: 'Color Unit',
-        pattern_unit: 'Pattern Unit',
-        spectrophotometer: 'Spectrophotometer',
-        analysis_settings_page: 'Analysis Settings Page',
-        operator_info: 'Operator Info',
-        operator_name: 'Operator Name',
-        
-        // Footer buttons
-        reset_to_defaults: 'Reset to Defaults',
-        cancel: 'Cancel',
-        apply_settings: 'Apply Settings',
-        
-        // Samples
-        samples: 'Samples',
-        sample_tests: 'Sample Tests',
-        loading_samples: 'Loading samples...',
-        preconfigured_tests: 'Pre-configured tests with generated reports',
-        run_sample: 'Run Sample',
-        
-        // Progress
-        processing: 'Processing...',
-        uploading_images: 'Uploading images...',
-        analyzing_colors: 'Analyzing colors...',
-        analyzing_patterns: 'Analyzing patterns...',
-        analyzing_repetition: 'Analyzing repetition...',
-        calculating_scores: 'Calculating scores...',
-        generating_report: 'Generating report...',
-        processing_complete: 'Processing complete!',
-        
-        // Progress steps
-        step_upload: 'Upload Images',
-        step_color: 'Color Analysis',
-        step_pattern: 'Pattern Analysis',
-        step_repetition: 'Pattern Repetition',
-        step_scoring: 'Calculate Scores',
-        step_report: 'Generate Report',
-        
-        // Errors
-        error_upload_both: 'Please upload both reference and sample images',
-        error_analysis: 'Analysis Error',
-        error_timeout: 'The analysis is taking too long. Please try with smaller images or fewer analysis options.',
-        error_empty_response: 'Server did not respond correctly. Please try again or check server logs.',
-        
-        // Footer
-        footer_text: '© 2025 Textile Engineering Solutions | Abdelbary Algamel PAU',
-        
-        // Misc
-        source_code: 'Source Code',
-        download_source: 'Download Source'
-    },
-    
-    tr: {
-        // Header
-        header_title: 'Tekstil Kalite Kontrol Sistemi',
-        header_subtitle: 'Profesyonel Renk ve Desen Analizi',
-        
-        // Page
-        page_title: 'Görüntü Kalite Kontrol Analizi',
-        page_subtitle: 'Kalite kontrol analizini başlatmak için referans ve numune görüntülerini yükleyin',
-        
-        // Image panels
-        reference_image: 'Referans Görüntü',
-        sample_image: 'Numune Görüntü',
-        no_image: 'Görüntü yok',
-        click_to_upload: 'Yüklemek için tıklayın',
-        
-        // Shape controls
-        circle: 'Daire',
-        square: 'Kare',
-        process_entire_image: 'Tüm Görüntüyü İşle',
-        size_px: 'Boyut (px):',
-        
-        // Buttons
-        advanced_settings: 'Gelişmiş Ayarlar',
-        start_processing: 'İşlemeyi Başlat',
-        delete_images: 'Görüntüleri Sil',
-        
-        // Results
-        analysis_results: 'Analiz Sonuçları',
-        pending: 'BEKLİYOR',
-        accept: 'KABUL',
-        reject: 'RED',
-        conditional_accept: 'KOŞULLU KABUL',
-        color_score: 'Renk Puanı (Color Score)',
-        pattern_score: 'Desen Puanı (Pattern Score)',
-        overall_score: 'Genel Puan (Overall Score)',
-        download_report: 'Raporu İndir (PDF)',
-        download_settings: 'Ayarları İndir',
-        
-        // Modal
-        configure_parameters: 'Analiz parametrelerini yapılandırın',
-        thresholds: 'Eşik Değerler (Thresholds)',
-        color_analysis: 'Renk Analizi',
-        pattern_analysis: 'Desen Analizi',
-        report_sections: 'Rapor Bölümleri',
-        
-        // Thresholds
-        color_thresholds: 'Renk Eşik Değerleri',
-        delta_e_pass_threshold: 'ΔE Geçiş Eşiği (Pass)',
-        delta_e_conditional_threshold: 'ΔE Koşullu Eşik (Conditional)',
-        pattern_thresholds: 'Desen Eşik Değerleri',
-        ssim_pass_threshold: 'SSIM Geçiş Eşiği',
-        ssim_conditional_threshold: 'SSIM Koşullu Eşik',
-        score_thresholds: 'Puan Eşik Değerleri',
-        color_score_threshold: 'Renk Puanı Eşiği',
-        pattern_score_threshold: 'Desen Puanı Eşiği',
-        overall_score_threshold: 'Genel Puan Eşiği',
-        
-        // Color Analysis
-        color_difference_methods: 'Renk Farkı Yöntemleri',
-        use_cmc_color_difference: 'CMC Renk Farkı Kullan',
-        cmc_ratio: 'CMC l:c Oranı',
-        cmc_acceptability: '2:1 (Kabul Edilebilirlik)',
-        cmc_perceptibility: '1:1 (Algılanabilirlik)',
-        spectrophotometer_settings: 'Spektrofotometre Ayarları',
-        observer_angle: 'Gözlemci Açısı',
-        observer_2_degree: '2° Standart Gözlemci',
-        observer_10_degree: '10° Standart Gözlemci',
-        geometry_mode: 'Geometri Modu',
-        
-        // Pattern Analysis
-        texture_parameters: 'Doku Parametreleri (Texture)',
-        lbp_points: 'LBP Noktaları',
-        lbp_radius: 'LBP Yarıçapı',
-        wavelet_type: 'Dalgacık Türü (Wavelet)',
-        wavelet_levels: 'Dalgacık Seviyeleri',
-        pattern_repetition: 'Desen Tekrarı',
-        pattern_min_area: 'Desen Min Alan (px)',
-        pattern_max_area: 'Desen Maks Alan (px)',
-        keypoint_detector: 'Anahtar Nokta Dedektörü (Keypoint)',
-        
-        // Report Sections
-        color_unit: 'Renk Birimi (Color Unit)',
-        pattern_unit: 'Desen Birimi (Pattern Unit)',
-        spectrophotometer: 'Spektrofotometre',
-        analysis_settings_page: 'Analiz Ayarları Sayfası',
-        operator_info: 'Operatör Bilgisi',
-        operator_name: 'Operatör Adı',
-        
-        // Footer buttons
-        reset_to_defaults: 'Varsayılanlara Sıfırla',
-        cancel: 'İptal',
-        apply_settings: 'Ayarları Uygula',
-        
-        // Samples
-        samples: 'Örnekler',
-        sample_tests: 'Örnek Testler',
-        loading_samples: 'Örnekler yükleniyor...',
-        preconfigured_tests: 'Oluşturulmuş raporlar ile önceden yapılandırılmış testler',
-        run_sample: 'Örneği Çalıştır',
-        
-        // Progress
-        processing: 'İşleniyor...',
-        uploading_images: 'Görüntüler yükleniyor...',
-        analyzing_colors: 'Renkler analiz ediliyor...',
-        analyzing_patterns: 'Desenler analiz ediliyor...',
-        analyzing_repetition: 'Tekrar analiz ediliyor...',
-        calculating_scores: 'Puanlar hesaplanıyor...',
-        generating_report: 'Rapor oluşturuluyor...',
-        processing_complete: 'İşlem tamamlandı!',
-        
-        // Progress steps
-        step_upload: 'Görüntüleri Yükle',
-        step_color: 'Renk Analizi',
-        step_pattern: 'Desen Analizi',
-        step_repetition: 'Desen Tekrarı',
-        step_scoring: 'Puanları Hesapla',
-        step_report: 'Rapor Oluştur',
-        
-        // Errors
-        error_upload_both: 'Lütfen hem referans hem de numune görüntülerini yükleyin',
-        error_analysis: 'Analiz Hatası',
-        error_timeout: 'Analiz çok uzun sürüyor. Lütfen daha küçük görüntüler veya daha az analiz seçeneği ile deneyin.',
-        error_empty_response: 'Sunucu düzgün yanıt vermedi. Lütfen tekrar deneyin veya sunucu günlüklerini kontrol edin.',
-        
-        // Footer
-        footer_text: '© 2025 Textile Engineering Solutions | Abdelbary Algamel PAU',
-        
-        // Misc
-        source_code: 'Kaynak Kod',
-        download_source: 'Kaynağı İndir'
-    }
-=======
     isProcessing: false
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
 };
 
 // ==========================================
@@ -313,10 +35,6 @@ var ProgressSteps = {
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Textile QC System initialized');
-<<<<<<< HEAD
-    initLanguageSwitch();
-=======
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
     initFileInputs();
     initShapeControls();
     initButtons();
@@ -328,75 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ==========================================
-<<<<<<< HEAD
-// Language Switch Functions
-// ==========================================
-function initLanguageSwitch() {
-    var savedLang = localStorage.getItem('textileQcLanguage') || 'en';
-    AppState.currentLanguage = savedLang;
-    
-    var langButtons = document.querySelectorAll('.lang-btn');
-    langButtons.forEach(function(btn) {
-        btn.classList.remove('active');
-        if (btn.getAttribute('data-lang') === savedLang) {
-            btn.classList.add('active');
-        }
-        
-        btn.addEventListener('click', function() {
-            var lang = this.getAttribute('data-lang');
-            setLanguage(lang);
-            
-            // Update active state
-            langButtons.forEach(function(b) { b.classList.remove('active'); });
-            this.classList.add('active');
-        });
-    });
-    
-    // Apply initial language
-    applyTranslations(savedLang);
-    
-    // Update HTML lang attribute
-    document.documentElement.setAttribute('lang', savedLang);
-    document.documentElement.setAttribute('data-lang', savedLang);
-}
-
-function setLanguage(lang) {
-    AppState.currentLanguage = lang;
-    localStorage.setItem('textileQcLanguage', lang);
-    
-    // Update HTML lang attribute
-    document.documentElement.setAttribute('lang', lang);
-    document.documentElement.setAttribute('data-lang', lang);
-    
-    // Apply translations
-    applyTranslations(lang);
-    
-    // Also update settings language for backend
-    AppState.settings.language = lang;
-}
-
-function applyTranslations(lang) {
-    var translations = Translations[lang] || Translations.en;
-    
-    // Find all elements with data-i18n attribute
-    var elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(function(el) {
-        var key = el.getAttribute('data-i18n');
-        if (translations[key]) {
-            el.textContent = translations[key];
-        }
-    });
-}
-
-function t(key) {
-    // Translation helper function
-    var translations = Translations[AppState.currentLanguage] || Translations.en;
-    return translations[key] || Translations.en[key] || key;
-}
-
-// ==========================================
-=======
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
 // File Input Handlers
 // ==========================================
 function initFileInputs() {
@@ -608,11 +257,7 @@ function updateButtonStates() {
 // ==========================================
 function startProcessing() {
     if (!AppState.refFile || !AppState.testFile) {
-<<<<<<< HEAD
-        alert(t('error_upload_both'));
-=======
         alert('Please upload both reference and sample images');
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
         return;
     }
     
@@ -624,11 +269,7 @@ function startProcessing() {
     showProgressModal();
     
     // Start upload
-<<<<<<< HEAD
-    updateProgress('upload', 0, t('uploading_images'));
-=======
     updateProgress('upload', 0, 'Uploading images...');
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
     
     var formData = new FormData();
     formData.append('reference', AppState.refFile);
@@ -680,21 +321,12 @@ function startProcessing() {
         // Show more detailed error message
         var errorMsg = error.message || 'Unknown error occurred';
         if (errorMsg.includes('timeout')) {
-<<<<<<< HEAD
-            errorMsg = t('error_timeout');
-        } else if (errorMsg.includes('Empty response') || errorMsg.includes('Invalid response')) {
-            errorMsg = t('error_empty_response');
-        }
-        
-        alert(t('error_analysis') + ':\n\n' + errorMsg);
-=======
             errorMsg = 'The analysis is taking too long. Please try with smaller images or fewer analysis options.';
         } else if (errorMsg.includes('Empty response') || errorMsg.includes('Invalid response')) {
             errorMsg = 'Server did not respond correctly. Please try again or check server logs.';
         }
         
         alert('Analysis Error:\n\n' + errorMsg);
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
     });
 }
 
@@ -712,50 +344,30 @@ function runAnalysis() {
         var currentProgress = 10;
         
         if (settings.enable_color_unit) {
-<<<<<<< HEAD
-            updateProgress('color', currentProgress, t('analyzing_colors'));
-=======
             updateProgress('color', currentProgress, 'Analyzing colors...');
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
             currentProgress += 25;
         }
         
         setTimeout(function() {
             if (settings.enable_pattern_unit) {
-<<<<<<< HEAD
-                updateProgress('pattern', currentProgress, t('analyzing_patterns'));
-=======
                 updateProgress('pattern', currentProgress, 'Analyzing patterns...');
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 currentProgress += 25;
             }
         }, 500);
         
         setTimeout(function() {
             if (settings.enable_pattern_repetition) {
-<<<<<<< HEAD
-                updateProgress('repetition', currentProgress, t('analyzing_repetition'));
-=======
                 updateProgress('repetition', currentProgress, 'Analyzing repetition...');
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 currentProgress += 20;
             }
         }, 1000);
         
         setTimeout(function() {
-<<<<<<< HEAD
-            updateProgress('scoring', currentProgress, t('calculating_scores'));
-        }, 1500);
-        
-        setTimeout(function() {
-            updateProgress('report', 90, t('generating_report'));
-=======
             updateProgress('scoring', currentProgress, 'Calculating scores...');
         }, 1500);
         
         setTimeout(function() {
             updateProgress('report', 90, 'Generating report...');
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
         }, 2000);
         
         // Make the actual API call with timeout handling
@@ -817,26 +429,12 @@ function showProgressModal() {
             <div class="progress-modal">
                 <div class="progress-header">
                     <div class="spinner"></div>
-<<<<<<< HEAD
-                    <h3 id="progressTitle">${t('processing')}</h3>
-=======
                     <h3 id="progressTitle">Processing...</h3>
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar-fill" id="progressBarFill"></div>
                 </div>
                 <div class="progress-percentage" id="progressPercentage">0%</div>
-<<<<<<< HEAD
-                <div class="progress-status" id="progressStatus">${t('processing')}...</div>
-                <div class="progress-steps" id="progressSteps">
-                    <div class="step" data-step="upload"><span class="step-icon">○</span> ${t('step_upload')}</div>
-                    <div class="step" data-step="color"><span class="step-icon">○</span> ${t('step_color')}</div>
-                    <div class="step" data-step="pattern"><span class="step-icon">○</span> ${t('step_pattern')}</div>
-                    <div class="step" data-step="repetition"><span class="step-icon">○</span> ${t('step_repetition')}</div>
-                    <div class="step" data-step="scoring"><span class="step-icon">○</span> ${t('step_scoring')}</div>
-                    <div class="step" data-step="report"><span class="step-icon">○</span> ${t('step_report')}</div>
-=======
                 <div class="progress-status" id="progressStatus">Preparing...</div>
                 <div class="progress-steps" id="progressSteps">
                     <div class="step" data-step="upload"><span class="step-icon">○</span> Upload Images</div>
@@ -845,7 +443,6 @@ function showProgressModal() {
                     <div class="step" data-step="repetition"><span class="step-icon">○</span> Pattern Repetition</div>
                     <div class="step" data-step="scoring"><span class="step-icon">○</span> Calculate Scores</div>
                     <div class="step" data-step="report"><span class="step-icon">○</span> Generate Report</div>
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 </div>
             </div>
         `;
@@ -905,13 +502,8 @@ function completeAllSteps() {
     
     if (bar) bar.style.width = '100%';
     if (pct) pct.textContent = '100%';
-<<<<<<< HEAD
-    if (stat) stat.textContent = t('processing_complete');
-    if (title) title.textContent = t('processing_complete');
-=======
     if (stat) stat.textContent = 'Processing complete!';
     if (title) title.textContent = 'Complete!';
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
 }
 
 // ==========================================
@@ -1098,10 +690,6 @@ function switchTab(tabName) {
 // ==========================================
 function collectSettings() {
     return {
-<<<<<<< HEAD
-        language: AppState.currentLanguage,
-=======
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
         delta_e_threshold: getNum('delta_e_threshold', 2.0),
         delta_e_conditional: getNum('delta_e_conditional', 3.5),
         ssim_pass_threshold: getNum('ssim_pass_threshold', 0.95),
@@ -1408,30 +996,18 @@ function renderSampleCards(samples) {
                 <div class="sample-card-images">
                     <div class="sample-card-image-wrapper">
                         <span class="sample-card-image-label">Ref</span>
-<<<<<<< HEAD
-                        <img src="/api/samples/image/${sample.reference}" alt="${t('reference_image')}" class="sample-card-image">
-                    </div>
-                    <div class="sample-card-image-wrapper">
-                        <span class="sample-card-image-label">Sample</span>
-                        <img src="/api/samples/image/${sample.sample}" alt="${t('sample_image')}" class="sample-card-image">
-=======
                         <img src="/api/samples/image/${sample.reference}" alt="Reference" class="sample-card-image">
                     </div>
                     <div class="sample-card-image-wrapper">
                         <span class="sample-card-image-label">Sample</span>
                         <img src="/api/samples/image/${sample.sample}" alt="Sample" class="sample-card-image">
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                     </div>
                 </div>
                 <button class="sample-card-btn" data-sample-id="${sample.id}" type="button">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
-<<<<<<< HEAD
-                    ${t('run_sample')} ${sample.id}
-=======
                     Run ${sample.name}
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 </button>
             </div>
         `;
@@ -1548,26 +1124,12 @@ function showSampleProgressModal() {
             <div class="progress-modal">
                 <div class="progress-header">
                     <div class="spinner"></div>
-<<<<<<< HEAD
-                    <h3 id="progressTitle">${t('processing')}</h3>
-=======
                     <h3 id="progressTitle">Loading Sample Test...</h3>
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar-fill" id="progressBarFill"></div>
                 </div>
                 <div class="progress-percentage" id="progressPercentage">0%</div>
-<<<<<<< HEAD
-                <div class="progress-status" id="progressStatus">${t('processing')}...</div>
-                <div class="progress-steps" id="progressSteps">
-                    <div class="step" data-step="upload"><span class="step-icon">○</span> ${t('step_upload')}</div>
-                    <div class="step" data-step="color"><span class="step-icon">○</span> ${t('step_color')}</div>
-                    <div class="step" data-step="pattern"><span class="step-icon">○</span> ${t('step_pattern')}</div>
-                    <div class="step" data-step="repetition"><span class="step-icon">○</span> ${t('step_repetition')}</div>
-                    <div class="step" data-step="scoring"><span class="step-icon">○</span> ${t('step_scoring')}</div>
-                    <div class="step" data-step="report"><span class="step-icon">○</span> ${t('step_report')}</div>
-=======
                 <div class="progress-status" id="progressStatus">Preparing...</div>
                 <div class="progress-steps" id="progressSteps">
                     <div class="step" data-step="upload"><span class="step-icon">○</span> Load Images</div>
@@ -1576,7 +1138,6 @@ function showSampleProgressModal() {
                     <div class="step" data-step="repetition"><span class="step-icon">○</span> Pattern Repetition</div>
                     <div class="step" data-step="scoring"><span class="step-icon">○</span> Calculate Scores</div>
                     <div class="step" data-step="report"><span class="step-icon">○</span> Load Report</div>
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 </div>
             </div>
         `;

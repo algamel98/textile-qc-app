@@ -10,12 +10,6 @@ from app.core.constants import DEFAULT_TIMEZONE_OFFSET_HOURS
 @dataclass
 class QCSettings:
     """Quality Control Settings for textile analysis"""
-<<<<<<< HEAD
-    # Language setting
-    language: str = "en"  # "en" for English, "tr" for Turkish
-    
-=======
->>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
     # Operator info
     operator_name: str = "Operator"
     timezone_offset_hours: int = DEFAULT_TIMEZONE_OFFSET_HOURS
