@@ -411,26 +411,37 @@ def get_sample_image(image_name):
 
 @main_bp.route('/api/samples/report/<int:sample_num>')
 def download_sample_report(sample_num):
-    """Download pre-generated sample reports"""
+    """Download pre-generated sample reports with language selection"""
     try:
+        # Get language parameter (default to 'en')
+        language = request.args.get('lang', 'en')
+        
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         reports_dir = os.path.join(project_root, 'Samples', 'REPORTS')
         
         if not os.path.exists(reports_dir):
             return jsonify({'error': 'Reports folder not found'}), 404
         
-        # Map sample number to report file
-        report_filename = f'REPORT{sample_num}.pdf'
+        # Map sample number to report file based on language
+        if language == 'tr':
+            report_filename = f'REPORTtr{sample_num}.pdf'
+            download_name = f'TextileQC_Sample{sample_num}_Report_Turkish.pdf'
+        else:
+            report_filename = f'REPORT{sample_num}.pdf'
+            download_name = f'TextileQC_Sample{sample_num}_Report.pdf'
+        
         file_path = os.path.join(reports_dir, report_filename)
         
         if not os.path.exists(file_path):
-            return jsonify({'error': f'Report {sample_num} not found'}), 404
+            return jsonify({'error': f'Report {sample_num} in {language} not found'}), 404
+        
+        logger.info(f"Downloading sample report: {report_filename}")
         
         return send_file(
             file_path,
             mimetype='application/pdf',
             as_attachment=True,
-            download_name=f'TextileQC_Sample{sample_num}_Report.pdf'
+            download_name=download_name
         )
         
     except Exception as e:
