@@ -1,6 +1,10 @@
 /**
  * Textile QC System - Main Application
+<<<<<<< HEAD
  * Version 2.0.0 - With Progress Tracking & Multilingual Support
+=======
+ * Version 2.0.0 - With Progress Tracking
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
  */
 
 // ==========================================
@@ -15,6 +19,7 @@ var AppState = {
     processFullImage: false,
     pdfFilename: null,
     settings: {},
+<<<<<<< HEAD
     isProcessing: false,
     currentLanguage: 'en'
 };
@@ -286,6 +291,9 @@ var Translations = {
         source_code: 'Kaynak Kod',
         download_source: 'Kaynağı İndir'
     }
+=======
+    isProcessing: false
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
 };
 
 // ==========================================
@@ -305,7 +313,10 @@ var ProgressSteps = {
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Textile QC System initialized');
+<<<<<<< HEAD
     initLanguageSwitch();
+=======
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
     initFileInputs();
     initShapeControls();
     initButtons();
@@ -317,6 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ==========================================
+<<<<<<< HEAD
 // Language Switch Functions
 // ==========================================
 function initLanguageSwitch() {
@@ -383,6 +395,8 @@ function t(key) {
 }
 
 // ==========================================
+=======
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
 // File Input Handlers
 // ==========================================
 function initFileInputs() {
@@ -594,7 +608,11 @@ function updateButtonStates() {
 // ==========================================
 function startProcessing() {
     if (!AppState.refFile || !AppState.testFile) {
+<<<<<<< HEAD
         alert(t('error_upload_both'));
+=======
+        alert('Please upload both reference and sample images');
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
         return;
     }
     
@@ -606,7 +624,11 @@ function startProcessing() {
     showProgressModal();
     
     // Start upload
+<<<<<<< HEAD
     updateProgress('upload', 0, t('uploading_images'));
+=======
+    updateProgress('upload', 0, 'Uploading images...');
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
     
     var formData = new FormData();
     formData.append('reference', AppState.refFile);
@@ -658,12 +680,21 @@ function startProcessing() {
         // Show more detailed error message
         var errorMsg = error.message || 'Unknown error occurred';
         if (errorMsg.includes('timeout')) {
+<<<<<<< HEAD
             errorMsg = t('error_timeout');
         } else if (errorMsg.includes('Empty response') || errorMsg.includes('Invalid response')) {
             errorMsg = t('error_empty_response');
         }
         
         alert(t('error_analysis') + ':\n\n' + errorMsg);
+=======
+            errorMsg = 'The analysis is taking too long. Please try with smaller images or fewer analysis options.';
+        } else if (errorMsg.includes('Empty response') || errorMsg.includes('Invalid response')) {
+            errorMsg = 'Server did not respond correctly. Please try again or check server logs.';
+        }
+        
+        alert('Analysis Error:\n\n' + errorMsg);
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
     });
 }
 
@@ -681,30 +712,50 @@ function runAnalysis() {
         var currentProgress = 10;
         
         if (settings.enable_color_unit) {
+<<<<<<< HEAD
             updateProgress('color', currentProgress, t('analyzing_colors'));
+=======
+            updateProgress('color', currentProgress, 'Analyzing colors...');
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
             currentProgress += 25;
         }
         
         setTimeout(function() {
             if (settings.enable_pattern_unit) {
+<<<<<<< HEAD
                 updateProgress('pattern', currentProgress, t('analyzing_patterns'));
+=======
+                updateProgress('pattern', currentProgress, 'Analyzing patterns...');
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 currentProgress += 25;
             }
         }, 500);
         
         setTimeout(function() {
             if (settings.enable_pattern_repetition) {
+<<<<<<< HEAD
                 updateProgress('repetition', currentProgress, t('analyzing_repetition'));
+=======
+                updateProgress('repetition', currentProgress, 'Analyzing repetition...');
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 currentProgress += 20;
             }
         }, 1000);
         
         setTimeout(function() {
+<<<<<<< HEAD
             updateProgress('scoring', currentProgress, t('calculating_scores'));
         }, 1500);
         
         setTimeout(function() {
             updateProgress('report', 90, t('generating_report'));
+=======
+            updateProgress('scoring', currentProgress, 'Calculating scores...');
+        }, 1500);
+        
+        setTimeout(function() {
+            updateProgress('report', 90, 'Generating report...');
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
         }, 2000);
         
         // Make the actual API call with timeout handling
@@ -766,12 +817,17 @@ function showProgressModal() {
             <div class="progress-modal">
                 <div class="progress-header">
                     <div class="spinner"></div>
+<<<<<<< HEAD
                     <h3 id="progressTitle">${t('processing')}</h3>
+=======
+                    <h3 id="progressTitle">Processing...</h3>
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar-fill" id="progressBarFill"></div>
                 </div>
                 <div class="progress-percentage" id="progressPercentage">0%</div>
+<<<<<<< HEAD
                 <div class="progress-status" id="progressStatus">${t('processing')}...</div>
                 <div class="progress-steps" id="progressSteps">
                     <div class="step" data-step="upload"><span class="step-icon">○</span> ${t('step_upload')}</div>
@@ -780,6 +836,16 @@ function showProgressModal() {
                     <div class="step" data-step="repetition"><span class="step-icon">○</span> ${t('step_repetition')}</div>
                     <div class="step" data-step="scoring"><span class="step-icon">○</span> ${t('step_scoring')}</div>
                     <div class="step" data-step="report"><span class="step-icon">○</span> ${t('step_report')}</div>
+=======
+                <div class="progress-status" id="progressStatus">Preparing...</div>
+                <div class="progress-steps" id="progressSteps">
+                    <div class="step" data-step="upload"><span class="step-icon">○</span> Upload Images</div>
+                    <div class="step" data-step="color"><span class="step-icon">○</span> Color Analysis</div>
+                    <div class="step" data-step="pattern"><span class="step-icon">○</span> Pattern Analysis</div>
+                    <div class="step" data-step="repetition"><span class="step-icon">○</span> Pattern Repetition</div>
+                    <div class="step" data-step="scoring"><span class="step-icon">○</span> Calculate Scores</div>
+                    <div class="step" data-step="report"><span class="step-icon">○</span> Generate Report</div>
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 </div>
             </div>
         `;
@@ -839,8 +905,13 @@ function completeAllSteps() {
     
     if (bar) bar.style.width = '100%';
     if (pct) pct.textContent = '100%';
+<<<<<<< HEAD
     if (stat) stat.textContent = t('processing_complete');
     if (title) title.textContent = t('processing_complete');
+=======
+    if (stat) stat.textContent = 'Processing complete!';
+    if (title) title.textContent = 'Complete!';
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
 }
 
 // ==========================================
@@ -1027,7 +1098,10 @@ function switchTab(tabName) {
 // ==========================================
 function collectSettings() {
     return {
+<<<<<<< HEAD
         language: AppState.currentLanguage,
+=======
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
         delta_e_threshold: getNum('delta_e_threshold', 2.0),
         delta_e_conditional: getNum('delta_e_conditional', 3.5),
         ssim_pass_threshold: getNum('ssim_pass_threshold', 0.95),
@@ -1334,18 +1408,30 @@ function renderSampleCards(samples) {
                 <div class="sample-card-images">
                     <div class="sample-card-image-wrapper">
                         <span class="sample-card-image-label">Ref</span>
+<<<<<<< HEAD
                         <img src="/api/samples/image/${sample.reference}" alt="${t('reference_image')}" class="sample-card-image">
                     </div>
                     <div class="sample-card-image-wrapper">
                         <span class="sample-card-image-label">Sample</span>
                         <img src="/api/samples/image/${sample.sample}" alt="${t('sample_image')}" class="sample-card-image">
+=======
+                        <img src="/api/samples/image/${sample.reference}" alt="Reference" class="sample-card-image">
+                    </div>
+                    <div class="sample-card-image-wrapper">
+                        <span class="sample-card-image-label">Sample</span>
+                        <img src="/api/samples/image/${sample.sample}" alt="Sample" class="sample-card-image">
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                     </div>
                 </div>
                 <button class="sample-card-btn" data-sample-id="${sample.id}" type="button">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
+<<<<<<< HEAD
                     ${t('run_sample')} ${sample.id}
+=======
+                    Run ${sample.name}
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 </button>
             </div>
         `;
@@ -1462,12 +1548,17 @@ function showSampleProgressModal() {
             <div class="progress-modal">
                 <div class="progress-header">
                     <div class="spinner"></div>
+<<<<<<< HEAD
                     <h3 id="progressTitle">${t('processing')}</h3>
+=======
+                    <h3 id="progressTitle">Loading Sample Test...</h3>
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar-fill" id="progressBarFill"></div>
                 </div>
                 <div class="progress-percentage" id="progressPercentage">0%</div>
+<<<<<<< HEAD
                 <div class="progress-status" id="progressStatus">${t('processing')}...</div>
                 <div class="progress-steps" id="progressSteps">
                     <div class="step" data-step="upload"><span class="step-icon">○</span> ${t('step_upload')}</div>
@@ -1476,6 +1567,16 @@ function showSampleProgressModal() {
                     <div class="step" data-step="repetition"><span class="step-icon">○</span> ${t('step_repetition')}</div>
                     <div class="step" data-step="scoring"><span class="step-icon">○</span> ${t('step_scoring')}</div>
                     <div class="step" data-step="report"><span class="step-icon">○</span> ${t('step_report')}</div>
+=======
+                <div class="progress-status" id="progressStatus">Preparing...</div>
+                <div class="progress-steps" id="progressSteps">
+                    <div class="step" data-step="upload"><span class="step-icon">○</span> Load Images</div>
+                    <div class="step" data-step="color"><span class="step-icon">○</span> Color Analysis</div>
+                    <div class="step" data-step="pattern"><span class="step-icon">○</span> Pattern Analysis</div>
+                    <div class="step" data-step="repetition"><span class="step-icon">○</span> Pattern Repetition</div>
+                    <div class="step" data-step="scoring"><span class="step-icon">○</span> Calculate Scores</div>
+                    <div class="step" data-step="report"><span class="step-icon">○</span> Load Report</div>
+>>>>>>> c6f070ccf06e1e0ba40d88c583b5a4834e7ad443
                 </div>
             </div>
         `;
