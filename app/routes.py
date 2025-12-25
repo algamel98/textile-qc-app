@@ -341,32 +341,35 @@ def get_default_settings():
 
 @main_bp.route('/api/source/<file_type>')
 def download_source(file_type):
-    """Download source code files from SOURCEDOWN folder"""
+    """Download source code files"""
     try:
         # Get the project root directory
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        source_dir = os.path.join(project_root, 'SOURCEDOWN')
         
-        if not os.path.exists(source_dir):
-            return jsonify({'error': 'Source folder not found'}), 404
-        
-        # Map file types to actual files
-        file_mapping = {
-            'py': ('TEXPYTHON.py', 'TextileQC_Analysis.py'),
-            'ipynb': ('TEXCOLAB.ipynb', 'TextileQC_Analysis.ipynb')
-        }
-        
-        if file_type not in file_mapping:
-            return jsonify({'error': 'Invalid file type'}), 400
-        
-        source_file, download_name = file_mapping[file_type]
-        file_path = os.path.join(source_dir, source_file)
+        # For development modal, always use TextileQC_Analysis.py from root
+        if file_type == 'py':
+            file_path = os.path.join(project_root, 'TextileQC_Analysis.py')
+            download_name = 'TextileQC_Analysis.py'
+            mime_type = 'text/x-python'
+        else:
+            # For other requests (like help dialog), use SOURCEDOWN folder
+            source_dir = os.path.join(project_root, 'SOURCEDOWN')
+            if not os.path.exists(source_dir):
+                return jsonify({'error': 'Source folder not found'}), 404
+            
+            file_mapping = {
+                'ipynb': ('TEXCOLAB.ipynb', 'TextileQC_Analysis.ipynb')
+            }
+            
+            if file_type not in file_mapping:
+                return jsonify({'error': 'Invalid file type'}), 400
+            
+            source_file, download_name = file_mapping[file_type]
+            file_path = os.path.join(source_dir, source_file)
+            mime_type = 'application/x-ipynb+json'
         
         if not os.path.exists(file_path):
-            return jsonify({'error': f'File {source_file} not found'}), 404
-        
-        # Set appropriate mime type
-        mime_type = 'text/x-python' if file_type == 'py' else 'application/x-ipynb+json'
+            return jsonify({'error': f'File not found'}), 404
         
         return send_file(
             file_path,
@@ -378,6 +381,25 @@ def download_source(file_type):
     except Exception as e:
         logger.error(f"Source download error: {str(e)}")
         return jsonify({'error': 'Failed to download source file'}), 500
+
+@main_bp.route('/api/source/textileqc/raw')
+def get_textileqc_source_raw():
+    """Get TextileQC_Analysis.py content as text"""
+    try:
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        file_path = os.path.join(project_root, 'TextileQC_Analysis.py')
+        
+        if not os.path.exists(file_path):
+            return jsonify({'error': 'File not found'}), 404
+        
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        return Response(content, mimetype='text/plain; charset=utf-8')
+        
+    except Exception as e:
+        logger.error(f"Source read error: {str(e)}")
+        return jsonify({'error': 'Failed to read source file'}), 500
 
 
 # ==========================================
@@ -487,6 +509,45 @@ def download_logo(logo_name):
     except Exception as e:
         logger.error(f"Logo download error: {str(e)}")
         return jsonify({'error': 'Failed to download logo'}), 500
+
+
+@main_bp.route('/api/download/datasheet/<lang>')
+def download_datasheet(lang):
+    """Download datasheet PDF files"""
+    try:
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        datasheets_dir = os.path.join(project_root, 'DataSheets')
+        
+        if not os.path.exists(datasheets_dir):
+            return jsonify({'error': 'DataSheets folder not found'}), 404
+        
+        # Map language to filename
+        if lang == 'en':
+            filename = 'Datasheet EN.pdf'
+            download_name = 'TextileQC_Datasheet_EN.pdf'
+        elif lang == 'tr':
+            filename = 'Datasheet TR.pdf'
+            download_name = 'TextileQC_Datasheet_TR.pdf'
+        else:
+            return jsonify({'error': 'Invalid language'}), 400
+        
+        file_path = os.path.join(datasheets_dir, filename)
+        
+        if not os.path.exists(file_path):
+            return jsonify({'error': f'Datasheet {lang} not found'}), 404
+        
+        logger.info(f"Downloading datasheet: {filename}")
+        
+        return send_file(
+            file_path,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=download_name
+        )
+        
+    except Exception as e:
+        logger.error(f"Datasheet download error: {str(e)}")
+        return jsonify({'error': 'Failed to download datasheet'}), 500
 
 
 @main_bp.route('/api/samples/list')

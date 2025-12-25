@@ -43,8 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initOverlayTracking();
     loadDefaultSettings();
     initCodeDownload();
+    initDatasheetDownload();
     initSampleTests();
     initDevelopmentModal();
+    initContactPopup();
     
     // Initialize samples language note
     updateSamplesLanguageNote();
@@ -862,6 +864,21 @@ function getHelpContent(type) {
                 </div>
             `
         };
+    } else if (type === 'datasheet-en' || type === 'datasheet-tr') {
+        return {
+            title: I18n.t('datasheet.what.is'),
+            icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>',
+            body: `
+                <h4>📋 ` + I18n.t('datasheet.what.is') + `</h4>
+                <p>` + I18n.t('datasheet.description') + `</p>
+                <ul>
+                    <li>` + I18n.t('datasheet.math.foundations') + `</li>
+                    <li>` + I18n.t('datasheet.full.concept') + `</li>
+                    <li>` + I18n.t('datasheet.report.explanation') + `</li>
+                    <li>` + I18n.t('datasheet.images.explanation') + `</li>
+                </ul>
+            `
+        };
     }
     return null;
 }
@@ -933,7 +950,12 @@ function initCodeDownload() {
     if (helpDownload) {
         helpDownload.addEventListener('click', function() {
             if (currentHelpType) {
-                downloadSourceCode(currentHelpType);
+                if (currentHelpType === 'datasheet-en' || currentHelpType === 'datasheet-tr') {
+                    var lang = currentHelpType === 'datasheet-en' ? 'en' : 'tr';
+                    downloadDatasheet(lang);
+                } else {
+                    downloadSourceCode(currentHelpType);
+                }
                 closeHelpDialog();
             }
         });
@@ -948,11 +970,69 @@ function initCodeDownload() {
     });
 }
 
+function initDatasheetDownload() {
+    var btnDatasheetDownload = document.getElementById('btnDatasheetDownload');
+    var datasheetDropdown = document.getElementById('datasheetDropdown');
+    var helpOverlay = document.getElementById('helpDialogOverlay');
+    
+    if (!btnDatasheetDownload || !datasheetDropdown) return;
+    
+    // Toggle dropdown
+    btnDatasheetDownload.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var isOpen = datasheetDropdown.classList.contains('show');
+        closeAllDropdowns();
+        if (!isOpen) {
+            datasheetDropdown.classList.add('show');
+            btnDatasheetDownload.classList.add('active');
+        }
+    });
+    
+    // Handle dropdown item clicks (only datasheet items)
+    var datasheetItems = datasheetDropdown.querySelectorAll('.dropdown-item');
+    datasheetItems.forEach(function(item) {
+        item.addEventListener('click', function(e) {
+            // Don't trigger download if clicking on help button
+            if (e.target.closest('.btn-help')) return;
+            
+            var datasheetType = item.getAttribute('data-type');
+            downloadDatasheet(datasheetType);
+            closeAllDropdowns();
+        });
+    });
+    
+    // Handle help button clicks for datasheet
+    var datasheetHelpButtons = datasheetDropdown.querySelectorAll('.btn-help');
+    datasheetHelpButtons.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var helpType = btn.getAttribute('data-help');
+            showHelpDialog(helpType);
+        });
+    });
+}
+
+function downloadDatasheet(lang) {
+    var downloadUrl = '/api/download/datasheet/' + lang;
+    
+    var a = document.createElement('a');
+    a.href = downloadUrl;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
 function closeAllDropdowns() {
-    var dropdown = document.getElementById('codeDropdown');
-    var btn = document.getElementById('btnCodeDownload');
-    if (dropdown) dropdown.classList.remove('show');
-    if (btn) btn.classList.remove('active');
+    var codeDropdown = document.getElementById('codeDropdown');
+    var codeBtn = document.getElementById('btnCodeDownload');
+    var datasheetDropdown = document.getElementById('datasheetDropdown');
+    var datasheetBtn = document.getElementById('btnDatasheetDownload');
+    
+    if (codeDropdown) codeDropdown.classList.remove('show');
+    if (codeBtn) codeBtn.classList.remove('active');
+    if (datasheetDropdown) datasheetDropdown.classList.remove('show');
+    if (datasheetBtn) datasheetBtn.classList.remove('active');
 }
 
 function showHelpDialog(type) {
@@ -970,14 +1050,32 @@ function showHelpDialog(type) {
     currentHelpType = type;
     
     iconEl.innerHTML = content.icon;
-    // Title is translated via data-i18n, so just update the body
+    
+    // Update title based on content type
+    if (titleEl) {
+        if (type === 'datasheet-en' || type === 'datasheet-tr') {
+            titleEl.textContent = I18n.t('datasheet.what.is');
+        } else {
+            titleEl.textContent = I18n.t('format.information');
+        }
+    }
+    
+    // Update body content
     bodyEl.innerHTML = content.body;
     
-    // Update download button text
+    // Update download button text based on content type
     if (downloadBtn) {
         var btnSpan = downloadBtn.querySelector('span[data-i18n]');
-        if (btnSpan) {
-            btnSpan.textContent = I18n.t('download.this.format');
+        if (type === 'datasheet-en' || type === 'datasheet-tr') {
+            // For datasheet, change button text
+            if (btnSpan) {
+                btnSpan.textContent = I18n.t('download.datasheet');
+            }
+        } else {
+            // For source code
+            if (btnSpan) {
+                btnSpan.textContent = I18n.t('download.this.format');
+            }
         }
     }
     
@@ -1344,4 +1442,41 @@ function downloadSampleReport(sampleId) {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+}
+
+// ==========================================
+// Contact Popup
+// ==========================================
+function initContactPopup() {
+    var footerContactBtn = document.getElementById('footerContactBtn');
+    var contactPopup = document.getElementById('contactPopup');
+    var contactPopupClose = document.getElementById('contactPopupClose');
+    
+    if (!footerContactBtn || !contactPopup) return;
+    
+    // Open popup on button click
+    footerContactBtn.addEventListener('click', function() {
+        contactPopup.style.display = 'flex';
+    });
+    
+    // Close button
+    if (contactPopupClose) {
+        contactPopupClose.addEventListener('click', function() {
+            contactPopup.style.display = 'none';
+        });
+    }
+    
+    // Close on overlay click
+    contactPopup.addEventListener('click', function(e) {
+        if (e.target === contactPopup) {
+            contactPopup.style.display = 'none';
+        }
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && contactPopup.style.display === 'flex') {
+            contactPopup.style.display = 'none';
+        }
+    });
 }
