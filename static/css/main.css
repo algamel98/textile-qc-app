@@ -72,6 +72,7 @@ body {
     gap: 12px;
 }
 
+<<<<<<< HEAD
 /* ==========================================
    Language Switcher Button
    ========================================== */
@@ -116,6 +117,8 @@ body {
     letter-spacing: 0.5px;
 }
 
+=======
+>>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
 .code-download-container {
     position: relative;
 }
