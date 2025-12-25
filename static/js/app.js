@@ -35,10 +35,7 @@ var ProgressSteps = {
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Textile QC System initialized');
-<<<<<<< HEAD
     initLanguageSwitcher();
-=======
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
     initFileInputs();
     initShapeControls();
     initButtons();
@@ -47,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDefaultSettings();
     initCodeDownload();
     initSampleTests();
-<<<<<<< HEAD
     
     // Listen for language changes
     document.addEventListener('languageChanged', function(e) {
@@ -89,11 +85,6 @@ function updateDynamicTranslations() {
 }
 
 // ==========================================
-=======
-});
-
-// ==========================================
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
 // File Input Handlers
 // ==========================================
 function initFileInputs() {
@@ -128,11 +119,7 @@ function handleFileUpload(file, type) {
         updateButtonStates();
     };
     reader.onerror = function() {
-<<<<<<< HEAD
         alert(I18n.t('error.reading.file'));
-=======
-        alert('Error reading file');
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
     };
     reader.readAsDataURL(file);
 }
@@ -148,17 +135,13 @@ function showImagePreview(previewId, placeholderId, infoId, src) {
             preview.src = src;
             preview.style.display = 'block';
             placeholder.style.display = 'none';
-<<<<<<< HEAD
             if (info) {
-            if (img.width && img.height) {
-                info.textContent = img.width + '×' + img.height;
-            } else {
-                info.textContent = I18n.t('no.image');
+                if (img.width && img.height) {
+                    info.textContent = img.width + '×' + img.height;
+                } else {
+                    info.textContent = I18n.t('no.image');
+                }
             }
-        }
-=======
-            if (info) info.textContent = img.width + '×' + img.height;
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
         };
         img.src = src;
     }
@@ -190,14 +173,10 @@ function initShapeControls() {
     if (sizeSlider && sizeValue) {
         sizeSlider.addEventListener('input', function(e) {
             AppState.shapeSize = parseInt(e.target.value);
-<<<<<<< HEAD
             sizeValue.innerHTML = AppState.shapeSize + ' <span data-i18n="px">px</span>';
             // Re-translate px text
             var pxSpan = sizeValue.querySelector('span[data-i18n="px"]');
             if (pxSpan) pxSpan.textContent = I18n.t('px');
-=======
-            sizeValue.textContent = AppState.shapeSize + ' px';
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
             updateOverlaySize();
         });
     }
@@ -326,11 +305,7 @@ function updateButtonStates() {
 // ==========================================
 function startProcessing() {
     if (!AppState.refFile || !AppState.testFile) {
-<<<<<<< HEAD
         alert(I18n.t('please.upload.both'));
-=======
-        alert('Please upload both reference and sample images');
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
         return;
     }
     
@@ -341,13 +316,8 @@ function startProcessing() {
     // Show progress modal
     showProgressModal();
     
-<<<<<<< HEAD
-        // Start upload
-        updateProgress('upload', 0, I18n.t('uploading.images'));
-=======
     // Start upload
-    updateProgress('upload', 0, 'Uploading images...');
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
+    updateProgress('upload', 0, I18n.t('uploading.images'));
     
     var formData = new FormData();
     formData.append('reference', AppState.refFile);
@@ -422,50 +392,30 @@ function runAnalysis() {
         var currentProgress = 10;
         
         if (settings.enable_color_unit) {
-<<<<<<< HEAD
             updateProgress('color', currentProgress, I18n.t('analyzing.colors'));
-=======
-            updateProgress('color', currentProgress, 'Analyzing colors...');
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
             currentProgress += 25;
         }
         
         setTimeout(function() {
             if (settings.enable_pattern_unit) {
-<<<<<<< HEAD
                 updateProgress('pattern', currentProgress, I18n.t('analyzing.patterns'));
-=======
-                updateProgress('pattern', currentProgress, 'Analyzing patterns...');
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
                 currentProgress += 25;
             }
         }, 500);
         
         setTimeout(function() {
             if (settings.enable_pattern_repetition) {
-<<<<<<< HEAD
                 updateProgress('repetition', currentProgress, I18n.t('analyzing.repetition'));
-=======
-                updateProgress('repetition', currentProgress, 'Analyzing repetition...');
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
                 currentProgress += 20;
             }
         }, 1000);
         
         setTimeout(function() {
-<<<<<<< HEAD
             updateProgress('scoring', currentProgress, I18n.t('calculating.scores'));
         }, 1500);
         
         setTimeout(function() {
             updateProgress('report', 90, I18n.t('generating.report'));
-=======
-            updateProgress('scoring', currentProgress, 'Calculating scores...');
-        }, 1500);
-        
-        setTimeout(function() {
-            updateProgress('report', 90, 'Generating report...');
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
         }, 2000);
         
         // Make the actual API call with timeout handling
@@ -533,7 +483,6 @@ function showProgressModal() {
                     <div class="progress-bar-fill" id="progressBarFill"></div>
                 </div>
                 <div class="progress-percentage" id="progressPercentage">0%</div>
-<<<<<<< HEAD
                 <div class="progress-status" id="progressStatus">` + I18n.t('preparing') + `</div>
                 <div class="progress-steps" id="progressSteps">
                     <div class="step" data-step="upload"><span class="step-icon">○</span> ` + I18n.t('upload.images') + `</div>
@@ -542,16 +491,6 @@ function showProgressModal() {
                     <div class="step" data-step="repetition"><span class="step-icon">○</span> ` + I18n.t('pattern.repetition.step') + `</div>
                     <div class="step" data-step="scoring"><span class="step-icon">○</span> ` + I18n.t('calculate.scores') + `</div>
                     <div class="step" data-step="report"><span class="step-icon">○</span> ` + I18n.t('generate.report') + `</div>
-=======
-                <div class="progress-status" id="progressStatus">Preparing...</div>
-                <div class="progress-steps" id="progressSteps">
-                    <div class="step" data-step="upload"><span class="step-icon">○</span> Upload Images</div>
-                    <div class="step" data-step="color"><span class="step-icon">○</span> Color Analysis</div>
-                    <div class="step" data-step="pattern"><span class="step-icon">○</span> Pattern Analysis</div>
-                    <div class="step" data-step="repetition"><span class="step-icon">○</span> Pattern Repetition</div>
-                    <div class="step" data-step="scoring"><span class="step-icon">○</span> Calculate Scores</div>
-                    <div class="step" data-step="report"><span class="step-icon">○</span> Generate Report</div>
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
                 </div>
             </div>
         `;
@@ -611,13 +550,8 @@ function completeAllSteps() {
     
     if (bar) bar.style.width = '100%';
     if (pct) pct.textContent = '100%';
-<<<<<<< HEAD
     if (stat) stat.textContent = I18n.t('processing.complete');
     if (title) title.textContent = I18n.t('complete');
-=======
-    if (stat) stat.textContent = 'Processing complete!';
-    if (title) title.textContent = 'Complete!';
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
 }
 
 // ==========================================
@@ -682,11 +616,7 @@ function animateScore(valueId, barId, score) {
 // Delete Images
 // ==========================================
 function deleteImages() {
-<<<<<<< HEAD
     if (!confirm(I18n.t('delete.confirm'))) return;
-=======
-    if (!confirm('Delete all images and start over?')) return;
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
     
     AppState.sessionId = null;
     AppState.refFile = null;
@@ -701,11 +631,7 @@ function deleteImages() {
         
         if (preview) preview.style.display = 'none';
         if (placeholder) placeholder.style.display = 'flex';
-<<<<<<< HEAD
         if (info) info.textContent = I18n.t('no.image');
-=======
-        if (info) info.textContent = 'No image';
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
         if (input) input.value = '';
     });
     
@@ -1098,11 +1024,7 @@ function loadSamples() {
             console.error('Error loading samples:', error);
             var body = document.getElementById('samplesSidebarBody');
             if (body) {
-<<<<<<< HEAD
                 body.innerHTML = '<div class="samples-loading"><span>' + I18n.t('failed.to.load.samples') + '</span></div>';
-=======
-                body.innerHTML = '<div class="samples-loading"><span>Failed to load samples</span></div>';
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
             }
         });
 }
@@ -1117,11 +1039,7 @@ function renderSampleCards(samples) {
             <div class="sample-card" data-sample-id="${sample.id}">
                 <div class="sample-card-header">
                     <div class="sample-card-number">${sample.id}</div>
-<<<<<<< HEAD
                     <div class="sample-card-badge">` + I18n.t('ready') + `</div>
-=======
-                    <div class="sample-card-badge">Ready</div>
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
                 </div>
                 <div class="sample-card-images">
                     <div class="sample-card-image-wrapper">
@@ -1137,11 +1055,7 @@ function renderSampleCards(samples) {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
-<<<<<<< HEAD
                     ` + I18n.t('run') + ` ${sample.name}
-=======
-                    Run ${sample.name}
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
                 </button>
             </div>
         `;
@@ -1190,29 +1104,21 @@ function loadSampleImages(sample) {
     // Set reference image
     if (refPreview && refPlaceholder) {
         refPreview.src = '/api/samples/image/' + sample.reference;
-        refPreview.onload = function() {
-            refPreview.style.display = 'block';
-            refPlaceholder.style.display = 'none';
-<<<<<<< HEAD
-            if (refInfo) refInfo.textContent = I18n.t('sample.tests');
-=======
-            if (refInfo) refInfo.textContent = 'Sample Test';
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
-        };
+            refPreview.onload = function() {
+                refPreview.style.display = 'block';
+                refPlaceholder.style.display = 'none';
+                if (refInfo) refInfo.textContent = I18n.t('sample.tests');
+            };
     }
     
     // Set sample image
     if (testPreview && testPlaceholder) {
         testPreview.src = '/api/samples/image/' + sample.sample;
-        testPreview.onload = function() {
-            testPreview.style.display = 'block';
-            testPlaceholder.style.display = 'none';
-<<<<<<< HEAD
-            if (testInfo) testInfo.textContent = I18n.t('sample.tests');
-=======
-            if (testInfo) testInfo.textContent = 'Sample Test';
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
-        };
+            testPreview.onload = function() {
+                testPreview.style.display = 'block';
+                testPlaceholder.style.display = 'none';
+                if (testInfo) testInfo.textContent = I18n.t('sample.tests');
+            };
     }
 }
 
@@ -1222,21 +1128,12 @@ function runSimulatedProcessing(sample) {
     
     // Simulated progress steps
     var steps = [
-<<<<<<< HEAD
         { step: 'upload', progress: 10, status: I18n.t('uploading.images'), delay: 300 },
         { step: 'color', progress: 35, status: I18n.t('analyzing.colors'), delay: 600 },
         { step: 'pattern', progress: 60, status: I18n.t('analyzing.patterns'), delay: 600 },
         { step: 'repetition', progress: 80, status: I18n.t('analyzing.repetition'), delay: 500 },
         { step: 'scoring', progress: 90, status: I18n.t('calculating.scores'), delay: 400 },
         { step: 'report', progress: 100, status: I18n.t('load.report'), delay: 300 }
-=======
-        { step: 'upload', progress: 10, status: 'Loading sample images...', delay: 300 },
-        { step: 'color', progress: 35, status: 'Analyzing colors...', delay: 600 },
-        { step: 'pattern', progress: 60, status: 'Analyzing patterns...', delay: 600 },
-        { step: 'repetition', progress: 80, status: 'Analyzing repetition...', delay: 500 },
-        { step: 'scoring', progress: 90, status: 'Calculating scores...', delay: 400 },
-        { step: 'report', progress: 100, status: 'Loading report...', delay: 300 }
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
     ];
     
     var currentStep = 0;
@@ -1275,17 +1172,12 @@ function showSampleProgressModal() {
             <div class="progress-modal">
                 <div class="progress-header">
                     <div class="spinner"></div>
-<<<<<<< HEAD
                     <h3 id="progressTitle">` + I18n.t('loading.sample.test') + `</h3>
-=======
-                    <h3 id="progressTitle">Loading Sample Test...</h3>
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar-fill" id="progressBarFill"></div>
                 </div>
                 <div class="progress-percentage" id="progressPercentage">0%</div>
-<<<<<<< HEAD
                 <div class="progress-status" id="progressStatus">` + I18n.t('preparing') + `</div>
                 <div class="progress-steps" id="progressSteps">
                     <div class="step" data-step="upload"><span class="step-icon">○</span> ` + I18n.t('load.images') + `</div>
@@ -1294,16 +1186,6 @@ function showSampleProgressModal() {
                     <div class="step" data-step="repetition"><span class="step-icon">○</span> ` + I18n.t('pattern.repetition.step') + `</div>
                     <div class="step" data-step="scoring"><span class="step-icon">○</span> ` + I18n.t('calculate.scores') + `</div>
                     <div class="step" data-step="report"><span class="step-icon">○</span> ` + I18n.t('load.report') + `</div>
-=======
-                <div class="progress-status" id="progressStatus">Preparing...</div>
-                <div class="progress-steps" id="progressSteps">
-                    <div class="step" data-step="upload"><span class="step-icon">○</span> Load Images</div>
-                    <div class="step" data-step="color"><span class="step-icon">○</span> Color Analysis</div>
-                    <div class="step" data-step="pattern"><span class="step-icon">○</span> Pattern Analysis</div>
-                    <div class="step" data-step="repetition"><span class="step-icon">○</span> Pattern Repetition</div>
-                    <div class="step" data-step="scoring"><span class="step-icon">○</span> Calculate Scores</div>
-                    <div class="step" data-step="report"><span class="step-icon">○</span> Load Report</div>
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
                 </div>
             </div>
         `;
@@ -1321,11 +1203,7 @@ function updateSampleProgress(step, percentage, status) {
     if (bar) bar.style.width = percentage + '%';
     if (pct) pct.textContent = percentage + '%';
     if (stat) stat.textContent = status;
-<<<<<<< HEAD
     if (title) title.textContent = I18n.t('processing') + ' ' + percentage + '%';
-=======
-    if (title) title.textContent = 'Processing... ' + percentage + '%';
->>>>>>> 404a07edd0257c99ead3464537efe27d329c9bb5
     
     // Mark step as active
     var stepEl = document.querySelector('.step[data-step="' + step + '"]');
