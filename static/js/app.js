@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initCodeDownload();
     initDatasheetDownload();
     initSampleTests();
+    initFeedbackSidebar();
     initDevelopmentModal();
     initContactPopup();
     
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('languageChanged', function(e) {
         // Re-translate dynamic content
         updateDynamicTranslations();
+        updateFeedbackFormTranslations();
     });
 });
 
@@ -1442,6 +1444,258 @@ function downloadSampleReport(sampleId) {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+}
+
+// ==========================================
+// Feedback Sidebar
+// ==========================================
+function initFeedbackSidebar() {
+    var toggleBtn = document.getElementById('feedbackToggleBtn');
+    var sidebar = document.getElementById('feedbackSidebar');
+    var overlay = document.getElementById('feedbackOverlay');
+    var closeBtn = document.getElementById('feedbackSidebarClose');
+    var form = document.getElementById('feedbackForm');
+    var anonymousToggle = document.getElementById('anonymousToggle');
+    var personalFields = document.getElementById('personalFields');
+    var messageField = document.getElementById('message');
+    var charCount = document.getElementById('charCount');
+    var fileInput = document.getElementById('fileUpload');
+    var fileName = document.getElementById('fileName');
+    var fileSizeError = document.getElementById('fileSizeError');
+    
+    if (!toggleBtn || !sidebar) return;
+    
+    // Toggle sidebar
+    toggleBtn.addEventListener('click', function() {
+        openFeedbackSidebar();
+    });
+    
+    // Close sidebar
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeFeedbackSidebar);
+    }
+    
+    if (overlay) {
+        overlay.addEventListener('click', closeFeedbackSidebar);
+    }
+    
+    // Escape key closes sidebar
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+            closeFeedbackSidebar();
+        }
+    });
+    
+    // Anonymous toggle
+    if (anonymousToggle && personalFields) {
+        anonymousToggle.addEventListener('change', function() {
+            if (this.checked) {
+                personalFields.classList.add('hidden');
+            } else {
+                personalFields.classList.remove('hidden');
+            }
+        });
+    }
+    
+    // Character count for message
+    if (messageField && charCount) {
+        messageField.addEventListener('input', function() {
+            var length = this.value.length;
+            charCount.textContent = '(' + length + '/2000)';
+            if (length > 2000) {
+                charCount.style.color = '#ef4444';
+            } else {
+                charCount.style.color = '#64748b';
+            }
+        });
+    }
+    
+    // File upload handling
+    if (fileInput && fileName) {
+        fileInput.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var maxSize = 50 * 1024 * 1024; // 50 MB
+                if (file.size > maxSize) {
+                    fileSizeError.textContent = I18n.t('file.too.large');
+                    fileSizeError.style.display = 'block';
+                    fileInput.value = '';
+                    fileName.textContent = '';
+                } else {
+                    fileSizeError.style.display = 'none';
+                    fileName.textContent = file.name + ' (' + formatFileSize(file.size) + ')';
+                }
+            } else {
+                fileName.textContent = '';
+            }
+        });
+    }
+    
+    // Form submission
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitFeedbackForm();
+        });
+    }
+}
+
+function openFeedbackSidebar() {
+    var sidebar = document.getElementById('feedbackSidebar');
+    var overlay = document.getElementById('feedbackOverlay');
+    
+    if (sidebar) sidebar.classList.add('open');
+    if (overlay) overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeFeedbackSidebar() {
+    var sidebar = document.getElementById('feedbackSidebar');
+    var overlay = document.getElementById('feedbackOverlay');
+    
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    var k = 1024;
+    var sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+function submitFeedbackForm() {
+    var form = document.getElementById('feedbackForm');
+    var messageField = document.getElementById('message');
+    var messageError = document.getElementById('messageError');
+    var submitBtn = document.getElementById('feedbackSubmitBtn');
+    var fileInput = document.getElementById('fileUpload');
+    
+    // Reset errors
+    if (messageError) {
+        messageError.style.display = 'none';
+        messageError.textContent = '';
+    }
+    
+    if (messageField) {
+        messageField.classList.remove('error');
+    }
+    
+    // Validate message
+    var message = messageField ? messageField.value.trim() : '';
+    if (!message) {
+        if (messageField) {
+            messageField.classList.add('error');
+            messageField.focus();
+        }
+        if (messageError) {
+            messageError.textContent = I18n.t('message.required');
+            messageError.style.display = 'block';
+        }
+        return;
+    }
+    
+    // Disable submit button
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>' + I18n.t('sending') + '...</span>';
+    }
+    
+    // Prepare form data
+    var formData = new FormData();
+    formData.append('access_key', '5176da08-b0a1-4245-8fb0-4fbf75e8e6d0');
+    formData.append('subject', 'Feedback Submission - ' + (document.getElementById('feedbackType') ? document.getElementById('feedbackType').options[document.getElementById('feedbackType').selectedIndex].text : 'Feedback'));
+    
+    // Build email body
+    var emailBody = '';
+    var anonymous = document.getElementById('anonymousToggle') ? document.getElementById('anonymousToggle').checked : false;
+    
+    if (!anonymous) {
+        var firstName = document.getElementById('firstName') ? document.getElementById('firstName').value.trim() : '';
+        var lastName = document.getElementById('lastName') ? document.getElementById('lastName').value.trim() : '';
+        var page = document.getElementById('page') ? document.getElementById('page').value.trim() : '';
+        var email = document.getElementById('email') ? document.getElementById('email').value.trim() : '';
+        var phone = document.getElementById('phone') ? document.getElementById('phone').value.trim() : '';
+        
+        if (firstName) emailBody += 'First Name: ' + firstName + '\n';
+        if (lastName) emailBody += 'Last Name: ' + lastName + '\n';
+        if (page) emailBody += 'Page: ' + page + '\n';
+        if (email) emailBody += 'Email: ' + email + '\n';
+        if (phone) emailBody += 'Phone: ' + phone + '\n';
+        emailBody += '\n';
+    } else {
+        emailBody += 'Submitted anonymously\n\n';
+    }
+    
+    var feedbackType = document.getElementById('feedbackType') ? document.getElementById('feedbackType').options[document.getElementById('feedbackType').selectedIndex].text : '';
+    emailBody += 'Feedback Type: ' + feedbackType + '\n';
+    emailBody += 'Message:\n' + message + '\n';
+    
+    formData.append('message', emailBody);
+    formData.append('from_name', anonymous ? 'Anonymous User' : (document.getElementById('firstName') && document.getElementById('firstName').value.trim() ? document.getElementById('firstName').value.trim() : 'Feedback User'));
+    formData.append('email', document.getElementById('email') && document.getElementById('email').value.trim() ? document.getElementById('email').value.trim() : 'noreply@textileqc.com');
+    
+    // Add file if present
+    if (fileInput && fileInput.files.length > 0) {
+        formData.append('attachment', fileInput.files[0]);
+    }
+    
+    // Submit to Web3Forms
+    fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            alert(I18n.t('feedback.success'));
+            form.reset();
+            if (document.getElementById('anonymousToggle')) {
+                document.getElementById('anonymousToggle').checked = false;
+            }
+            if (document.getElementById('personalFields')) {
+                document.getElementById('personalFields').classList.remove('hidden');
+            }
+            if (document.getElementById('charCount')) {
+                document.getElementById('charCount').textContent = '(0/2000)';
+            }
+            if (document.getElementById('fileName')) {
+                document.getElementById('fileName').textContent = '';
+            }
+            closeFeedbackSidebar();
+        } else {
+            throw new Error(data.message || 'Submission failed');
+        }
+    })
+    .catch(function(error) {
+        console.error('Feedback submission error:', error);
+        alert(I18n.t('feedback.error') + ': ' + error.message);
+    })
+    .finally(function() {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg><span>' + I18n.t('send') + '</span>';
+        }
+    });
+}
+
+function updateFeedbackFormTranslations() {
+    // Update select options
+    var feedbackType = document.getElementById('feedbackType');
+    if (feedbackType) {
+        var options = feedbackType.querySelectorAll('option');
+        options.forEach(function(option) {
+            var value = option.getAttribute('value');
+            if (value) {
+                var key = 'feedback.type.' + value;
+                option.textContent = I18n.t(key);
+            }
+        });
+    }
 }
 
 // ==========================================
