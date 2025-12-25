@@ -1775,17 +1775,17 @@ body {
 .feedback-toggle-btn {
     position: fixed;
     left: 0;
-    top: calc(50% + 80px);
+    top: calc(50% + 140px);
     transform: translateY(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    padding: 14px 10px;
+    gap: 4px;
+    padding: 10px 8px;
     background: linear-gradient(135deg, #f97316, #fb923c);
     color: white;
     border: none;
-    border-radius: 0 12px 12px 0;
+    border-radius: 0 10px 10px 0;
     cursor: pointer;
     z-index: 100;
     box-shadow: 4px 0 20px rgba(249, 115, 22, 0.25);
@@ -1796,7 +1796,7 @@ body {
 }
 
 .feedback-toggle-btn span {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.05em;
     writing-mode: vertical-rl;
@@ -1804,14 +1804,15 @@ body {
 }
 
 .feedback-toggle-btn svg {
-    width: 20px;
-    height: 20px;
-    margin-bottom: 4px;
+    width: 18px;
+    height: 18px;
+    margin-bottom: 2px;
 }
 
 .feedback-toggle-btn:hover {
     background: linear-gradient(135deg, #ea580c, #f97316);
     box-shadow: 6px 0 24px rgba(249, 115, 22, 0.35);
+    padding-right: 12px;
 }
 
 .feedback-toggle-btn:active {
@@ -2062,14 +2063,16 @@ body {
     line-height: 1.6;
 }
 
-.feedback-attachment-note a {
+.feedback-attachment-note a.feedback-email-link {
     color: #f97316;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 0.9rem;
     text-decoration: none;
     transition: color 0.2s ease;
+    display: inline-block;
 }
 
-.feedback-attachment-note a:hover {
+.feedback-attachment-note a.feedback-email-link:hover {
     color: #ea580c;
     text-decoration: underline;
 }
