@@ -1510,33 +1510,58 @@ function initFeedbackSidebar() {
         });
     }
     
-    // File upload handling
-    if (fileInput && fileName) {
-        fileInput.addEventListener('change', function(e) {
-            var file = e.target.files[0];
-            if (file) {
-                var maxSize = 50 * 1024 * 1024; // 50 MB
-                if (file.size > maxSize) {
-                    fileSizeError.textContent = I18n.t('file.too.large');
-                    fileSizeError.style.display = 'block';
-                    fileInput.value = '';
-                    fileName.textContent = '';
-                } else {
-                    fileSizeError.style.display = 'none';
-                    fileName.textContent = file.name + ' (' + formatFileSize(file.size) + ')';
-                }
-            } else {
-                fileName.textContent = '';
-            }
-        });
-    }
-    
     // Form submission
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             submitFeedbackForm();
         });
+    }
+    
+    // Send New Feedback button
+    var btnFeedbackNew = document.getElementById('btnFeedbackNew');
+    if (btnFeedbackNew) {
+        btnFeedbackNew.addEventListener('click', function() {
+            resetFeedbackForm();
+        });
+    }
+}
+
+function resetFeedbackForm() {
+    var form = document.getElementById('feedbackForm');
+    var formContent = document.getElementById('feedbackFormContent');
+    var successMessage = document.getElementById('feedbackSuccessMessage');
+    
+    if (form) {
+        form.reset();
+    }
+    
+    if (document.getElementById('anonymousToggle')) {
+        document.getElementById('anonymousToggle').checked = false;
+    }
+    
+    if (document.getElementById('personalFields')) {
+        document.getElementById('personalFields').classList.remove('hidden');
+    }
+    
+    if (document.getElementById('charCount')) {
+        document.getElementById('charCount').textContent = '(0/2000)';
+    }
+    
+    if (document.getElementById('messageError')) {
+        document.getElementById('messageError').style.display = 'none';
+    }
+    
+    if (document.getElementById('message')) {
+        document.getElementById('message').classList.remove('error');
+    }
+    
+    if (formContent) {
+        formContent.classList.remove('hidden');
+    }
+    
+    if (successMessage) {
+        successMessage.style.display = 'none';
     }
 }
 
@@ -1568,10 +1593,11 @@ function formatFileSize(bytes) {
 
 function submitFeedbackForm() {
     var form = document.getElementById('feedbackForm');
+    var formContent = document.getElementById('feedbackFormContent');
+    var successMessage = document.getElementById('feedbackSuccessMessage');
     var messageField = document.getElementById('message');
     var messageError = document.getElementById('messageError');
     var submitBtn = document.getElementById('feedbackSubmitBtn');
-    var fileInput = document.getElementById('fileUpload');
     
     // Reset errors
     if (messageError) {
@@ -1615,13 +1641,11 @@ function submitFeedbackForm() {
     if (!anonymous) {
         var firstName = document.getElementById('firstName') ? document.getElementById('firstName').value.trim() : '';
         var lastName = document.getElementById('lastName') ? document.getElementById('lastName').value.trim() : '';
-        var page = document.getElementById('page') ? document.getElementById('page').value.trim() : '';
         var email = document.getElementById('email') ? document.getElementById('email').value.trim() : '';
         var phone = document.getElementById('phone') ? document.getElementById('phone').value.trim() : '';
         
         if (firstName) emailBody += 'First Name: ' + firstName + '\n';
         if (lastName) emailBody += 'Last Name: ' + lastName + '\n';
-        if (page) emailBody += 'Page: ' + page + '\n';
         if (email) emailBody += 'Email: ' + email + '\n';
         if (phone) emailBody += 'Phone: ' + phone + '\n';
         emailBody += '\n';
@@ -1637,11 +1661,6 @@ function submitFeedbackForm() {
     formData.append('from_name', anonymous ? 'Anonymous User' : (document.getElementById('firstName') && document.getElementById('firstName').value.trim() ? document.getElementById('firstName').value.trim() : 'Feedback User'));
     formData.append('email', document.getElementById('email') && document.getElementById('email').value.trim() ? document.getElementById('email').value.trim() : 'noreply@textileqc.com');
     
-    // Add file if present
-    if (fileInput && fileInput.files.length > 0) {
-        formData.append('attachment', fileInput.files[0]);
-    }
-    
     // Submit to Web3Forms
     fetch('https://api.web3forms.com/submit', {
         method: 'POST',
@@ -1652,28 +1671,24 @@ function submitFeedbackForm() {
     })
     .then(function(data) {
         if (data.success) {
-            alert(I18n.t('feedback.success'));
-            form.reset();
-            if (document.getElementById('anonymousToggle')) {
-                document.getElementById('anonymousToggle').checked = false;
+            // Hide form and show success message
+            if (formContent) {
+                formContent.classList.add('hidden');
             }
-            if (document.getElementById('personalFields')) {
-                document.getElementById('personalFields').classList.remove('hidden');
+            if (successMessage) {
+                successMessage.style.display = 'flex';
             }
-            if (document.getElementById('charCount')) {
-                document.getElementById('charCount').textContent = '(0/2000)';
-            }
-            if (document.getElementById('fileName')) {
-                document.getElementById('fileName').textContent = '';
-            }
-            closeFeedbackSidebar();
         } else {
             throw new Error(data.message || 'Submission failed');
         }
     })
     .catch(function(error) {
         console.error('Feedback submission error:', error);
-        alert(I18n.t('feedback.error') + ': ' + error.message);
+        // Show error in form
+        if (messageError) {
+            messageError.textContent = I18n.t('feedback.error') + ': ' + error.message;
+            messageError.style.display = 'block';
+        }
     })
     .finally(function() {
         if (submitBtn) {

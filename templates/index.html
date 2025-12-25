@@ -90,10 +90,6 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label data-i18n="page">Page</label>
-                        <input type="text" id="page" name="page" class="form-input">
-                    </div>
-                    <div class="form-group">
                         <label data-i18n="email.address">Email Address</label>
                         <input type="email" id="email" name="email" class="form-input">
                     </div>
@@ -121,31 +117,35 @@
                     <div class="error-message" id="messageError" style="display:none;"></div>
                 </div>
 
-                <div class="form-group">
-                    <label data-i18n="attach.file">Attach File (Max 50 MB)</label>
-                    <div class="file-upload-container">
-                        <input type="file" id="fileUpload" name="file" class="file-input" accept="image/*,application/pdf,.doc,.docx">
-                        <label for="fileUpload" class="file-upload-label">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                            <span data-i18n="choose.file">Choose File</span>
-                        </label>
-                        <span class="file-name" id="fileName"></span>
-                    </div>
-                    <div class="file-size-error" id="fileSizeError" style="display:none;"></div>
+                <div class="feedback-attachment-note">
+                    <p data-i18n="attachment.note">If you would like to send attachments, it is preferable to send them via email to <a href="mailto:aalgamel23@posta.pau.edu.tr">aalgamel23@posta.pau.edu.tr</a>.</p>
                 </div>
 
-                <button type="submit" class="btn-feedback-submit" id="feedbackSubmitBtn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
-                    </svg>
-                    <span data-i18n="send">Send</span>
-                </button>
+                <div class="feedback-form-content" id="feedbackFormContent">
+                    <button type="submit" class="btn-feedback-submit" id="feedbackSubmitBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
+                        </svg>
+                        <span data-i18n="send">Send</span>
+                    </button>
+                </div>
             </form>
+
+            <!-- Success Message -->
+            <div class="feedback-success-message" id="feedbackSuccessMessage" style="display:none;">
+                <div class="success-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <h3 data-i18n="message.sent.successfully">Message sent successfully</h3>
+                <p data-i18n="feedback.thank.you">Thank you for your cooperation. Your message will be taken into consideration and reviewed as soon as possible.</p>
+                <button type="button" class="btn-feedback-new" id="btnFeedbackNew">
+                    <span data-i18n="send.new.feedback">Send New Feedback</span>
+                </button>
+            </div>
         </div>
     </div>
 
