@@ -36,6 +36,7 @@
         </div>
         <div class="samples-sidebar-footer">
             <p data-i18n="preconfigured.tests">Pre-configured tests with generated reports</p>
+            <p class="samples-language-note" id="samplesLanguageNote"></p>
         </div>
     </div>
 
@@ -508,7 +509,7 @@
         <div class="help-dialog">
             <div class="help-dialog-header">
                 <div class="help-dialog-icon" id="helpDialogIcon"></div>
-                <h3 id="helpDialogTitle">Format Information</h3>
+                <h3 id="helpDialogTitle" data-i18n="format.information">Format Information</h3>
                 <button class="help-dialog-close" id="helpDialogClose" type="button">&times;</button>
             </div>
             <div class="help-dialog-body" id="helpDialogBody">
@@ -521,8 +522,83 @@
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
-                    Download this format
+                    <span data-i18n="download.this.format">Download this format</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Development Modal -->
+    <div class="development-modal-overlay" id="developmentModal" style="display:none;">
+        <div class="development-modal">
+            <div class="development-modal-header">
+                <div class="development-logo-container">
+                    <img src="/static/images/logo_square_with_name_1024x1024.png" alt="Logo" class="development-logo">
+                </div>
+                <h1 class="development-title" data-i18n="development.title">Website Under Development</h1>
+                <p class="development-message" data-i18n="development.message">This website is currently under development.</p>
+            </div>
+            
+            <div class="development-modal-body">
+                <div class="development-content">
+                    <p class="development-text" data-i18n="development.view.samples">You can view the results through the ready-made samples from the Samples section on the left side of the screen.</p>
+                    <p class="development-text" data-i18n="development.test.new">Or, to test new samples, download the source code (Python) and test it directly in the Google Colab environment.</p>
+                    
+                    <div class="development-logos-section">
+                        <p class="development-logos-note" data-i18n="development.logos.note">To obtain full results, these logos must be added to Google Colab with the same filenames.</p>
+                        <div class="development-logos-buttons">
+                            <button class="btn-logo-download" data-logo="logo_square_with_name_1024x1024.png" type="button">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                <span data-i18n="development.download.logo">Download logo</span>: logo_square_with_name_1024x1024
+                            </button>
+                            <button class="btn-logo-download" data-logo="logo_vertical_512x256.png" type="button">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                <span data-i18n="development.download.logo">Download logo</span>: logo_vertical_512x256
+                            </button>
+                            <button class="btn-logo-download" data-logo="logo_square_no_name_1024x1024.png" type="button">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                <span data-i18n="development.download.logo">Download logo</span>: logo_square_no_name_1024x1024
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="development-code-section" id="developmentCodeSection" style="display:none;">
+                        <h3 data-i18n="development.source.code">Source Code</h3>
+                        <pre class="development-code" id="developmentCodeContent"></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="development-modal-footer">
+                <button class="btn btn-secondary" id="btnDevelopmentColab" type="button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    <span data-i18n="development.go.colab">Go to Google Colab</span>
+                </button>
+                <button class="btn btn-primary" id="btnDevelopmentDownloadCode" type="button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span data-i18n="development.download.code">Download the code available on the homepage</span>
+                </button>
+                <button class="btn btn-outline" id="btnDevelopmentClose" type="button" data-i18n="development.close">Close</button>
             </div>
         </div>
     </div>
@@ -535,5 +611,6 @@
 
     <script src="/static/js/i18n.js"></script>
     <script src="/static/js/app.js"></script>
+    <script src="/static/js/development-modal.js"></script>
 </body>
 </html>

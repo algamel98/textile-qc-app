@@ -21,6 +21,10 @@ var I18n = {
             'preconfigured.tests': 'Pre-configured tests with generated reports',
             'run': 'Run',
             'ready': 'Ready',
+            'ref.label': 'Ref',
+            'sample.label': 'Sample',
+            'samples.language.note.en': 'If you want the samples in Turkish, change the site language.',
+            'samples.language.note.tr': 'If you want the samples in English, change the site language.',
             
             // Main Content
             'page.title': 'Image Quality Control Analysis',
@@ -138,6 +142,18 @@ var I18n = {
             'delete.confirm': 'Delete all images and start over?',
             'failed.to.load.samples': 'Failed to load samples',
             
+            // Development Modal
+            'development.title': 'Website Under Development',
+            'development.message': 'This website is currently under development.',
+            'development.view.samples': 'You can view the results through the ready-made samples from the Samples section on the left side of the screen.',
+            'development.test.new': 'Or, to test new samples, download the source code (Python) and test it directly in the Google Colab environment.',
+            'development.logos.note': 'To obtain full results, these logos must be added to Google Colab with the same filenames.',
+            'development.download.logo': 'Download logo',
+            'development.go.colab': 'Go to Google Colab',
+            'development.download.code': 'Download the code available on the homepage',
+            'development.source.code': 'Source Code',
+            'development.close': 'Close',
+            
             // Footer
             'copyright': '© 2025 Textile Engineering Solutions | Abdelbary Algamel PAU',
             
@@ -154,7 +170,19 @@ var I18n = {
             'what.is.notebook': 'What is a Jupyter Notebook (.ipynb)?',
             'best.for': 'Best for:',
             'local.development': 'Local development, integration into existing projects, or running on servers.',
-            'google.colab': 'Google Colab, quick experiments, learning, or when you don\'t want to set up a local environment.'
+            'google.colab': 'Google Colab, quick experiments, learning, or when you don\'t want to set up a local environment.',
+            'python.script.desc': 'A <strong>.py file</strong> is a standard Python script that can be executed in any Python environment.',
+            'python.works.with': 'Works with Python 3.7 or higher',
+            'python.run.directly': 'Run directly from command line or any IDE',
+            'python.ideal.for': 'Ideal for local development and integration',
+            'python.can.import': 'Can be imported as a module in your projects',
+            'python.best.for': 'Local development, integration into existing projects, or running on servers.',
+            'notebook.desc': 'A <strong>.ipynb file</strong> is an interactive notebook format perfect for step-by-step analysis and visualization.',
+            'notebook.runs.colab': 'Runs directly in <strong>Google Colab</strong> — no setup needed!',
+            'notebook.interactive': 'Interactive cells with explanations',
+            'notebook.easy.modify': 'Easy to modify and experiment with',
+            'notebook.visualizations': 'Visualizations are displayed inline',
+            'notebook.best.for': 'Google Colab, quick experiments, learning, or when you don\'t want to set up a local environment.'
         },
         
         tr: {
@@ -171,6 +199,10 @@ var I18n = {
             'preconfigured.tests': 'Hazır raporlarla önceden yapılandırılmış testler',
             'run': 'Çalıştır',
             'ready': 'Hazır',
+            'ref.label': 'Ref',
+            'sample.label': 'Örnek',
+            'samples.language.note.en': 'Örnekleri Türkçe olarak görmek istiyorsanız, site dilini değiştirin.',
+            'samples.language.note.tr': 'Örnekleri İngilizce olarak görmek istiyorsanız, site dilini değiştirin.',
             
             // Main Content
             'page.title': 'Görüntü Kalite Kontrol Analizi',
@@ -288,6 +320,18 @@ var I18n = {
             'delete.confirm': 'Tüm görüntüleri silip yeniden başlamak istiyor musunuz?',
             'failed.to.load.samples': 'Örnekler yüklenemedi',
             
+            // Development Modal
+            'development.title': 'Web Sitesi Geliştirme Aşamasında',
+            'development.message': 'Bu web sitesi şu anda geliştirme aşamasındadır.',
+            'development.view.samples': 'Sonuçları ekranın sol tarafındaki Örnekler bölümündeki hazır örnekler aracılığıyla görüntüleyebilirsiniz.',
+            'development.test.new': 'Veya yeni örnekleri test etmek için kaynak kodu (Python) indirin ve doğrudan Google Colab ortamında test edin.',
+            'development.logos.note': 'Tam sonuçları elde etmek için bu logolar aynı dosya adlarıyla Google Colab\'a eklenmelidir.',
+            'development.download.logo': 'Logoyu indir',
+            'development.go.colab': 'Google Colab\'a Git',
+            'development.download.code': 'Ana sayfadaki kodu indir',
+            'development.source.code': 'Kaynak Kod',
+            'development.close': 'Kapat',
+            
             // Footer
             'copyright': '© 2025 Tekstil Mühendisliği Çözümleri | Abdelbary Algamel PAU',
             
@@ -304,7 +348,19 @@ var I18n = {
             'what.is.notebook': 'Jupyter Notebook (.ipynb) nedir?',
             'best.for': 'En iyi:',
             'local.development': 'Yerel geliştirme, mevcut projelere entegrasyon veya sunucularda çalıştırma.',
-            'google.colab': 'Google Colab, hızlı denemeler, öğrenme veya yerel ortam kurmak istemediğinizde.'
+            'google.colab': 'Google Colab, hızlı denemeler, öğrenme veya yerel ortam kurmak istemediğinizde.',
+            'python.script.desc': '<strong>.py dosyası</strong>, herhangi bir Python ortamında çalıştırılabilen standart bir Python betiğidir.',
+            'python.works.with': 'Python 3.7 veya daha yüksek sürümlerle çalışır',
+            'python.run.directly': 'Komut satırından veya herhangi bir IDE\'den doğrudan çalıştırın',
+            'python.ideal.for': 'Yerel geliştirme ve entegrasyon için idealdir',
+            'python.can.import': 'Projelerinizde modül olarak içe aktarılabilir',
+            'python.best.for': 'Yerel geliştirme, mevcut projelere entegrasyon veya sunucularda çalıştırma.',
+            'notebook.desc': '<strong>.ipynb dosyası</strong>, adım adım analiz ve görselleştirme için mükemmel olan etkileşimli bir defter formatıdır.',
+            'notebook.runs.colab': '<strong>Google Colab</strong> içinde doğrudan çalışır — kurulum gerekmez!',
+            'notebook.interactive': 'Açıklamalı etkileşimli hücreler',
+            'notebook.easy.modify': 'Değiştirmesi ve denemesi kolay',
+            'notebook.visualizations': 'Görselleştirmeler satır içi gösterilir',
+            'notebook.best.for': 'Google Colab, hızlı denemeler, öğrenme veya yerel ortam kurmak istemediğinizde.'
         }
     },
     

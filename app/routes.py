@@ -449,6 +449,46 @@ def download_sample_report(sample_num):
         return jsonify({'error': 'Failed to download sample report'}), 500
 
 
+@main_bp.route('/api/download/logo/<logo_name>')
+def download_logo(logo_name):
+    """Download logo images"""
+    try:
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        images_dir = os.path.join(project_root, 'static', 'images')
+        
+        # Allowed logo filenames
+        allowed_logos = [
+            'logo_square_with_name_1024x1024.png',
+            'logo_vertical_512x256.png',
+            'logo_square_no_name_1024x1024.png'
+        ]
+        
+        # Add .png extension if not present
+        if not logo_name.endswith('.png'):
+            logo_name = f'{logo_name}.png'
+        
+        if logo_name not in allowed_logos:
+            return jsonify({'error': 'Invalid logo name'}), 400
+        
+        file_path = os.path.join(images_dir, logo_name)
+        
+        if not os.path.exists(file_path):
+            return jsonify({'error': 'Logo not found'}), 404
+        
+        logger.info(f"Downloading logo: {logo_name}")
+        
+        return send_file(
+            file_path,
+            mimetype='image/png',
+            as_attachment=True,
+            download_name=logo_name
+        )
+        
+    except Exception as e:
+        logger.error(f"Logo download error: {str(e)}")
+        return jsonify({'error': 'Failed to download logo'}), 500
+
+
 @main_bp.route('/api/samples/list')
 def get_samples_list():
     """Get list of available sample tests"""

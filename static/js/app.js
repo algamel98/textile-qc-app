@@ -44,6 +44,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDefaultSettings();
     initCodeDownload();
     initSampleTests();
+    initDevelopmentModal();
+    
+    // Initialize samples language note
+    updateSamplesLanguageNote();
     
     // Listen for language changes
     document.addEventListener('languageChanged', function(e) {
@@ -75,6 +79,9 @@ function updateDynamicTranslations() {
     if (sizeValue) {
         var size = AppState.shapeSize || 100;
         sizeValue.innerHTML = size + ' <span data-i18n="px">px</span>';
+        // Re-translate px text
+        var pxSpan = sizeValue.querySelector('span[data-i18n="px"]');
+        if (pxSpan) pxSpan.textContent = I18n.t('px');
     }
     
     // Update operator name placeholder
@@ -82,6 +89,32 @@ function updateDynamicTranslations() {
     if (operatorInput && !operatorInput.value) {
         operatorInput.placeholder = I18n.t('operator');
     }
+    
+    // Update help dialog if it's open
+    if (currentHelpType) {
+        var bodyEl = document.getElementById('helpDialogBody');
+        var downloadBtn = document.getElementById('helpDialogDownload');
+        if (bodyEl) {
+            var content = getHelpContent(currentHelpType);
+            if (content) {
+                bodyEl.innerHTML = content.body;
+            }
+        }
+        if (downloadBtn) {
+            var btnSpan = downloadBtn.querySelector('span[data-i18n]');
+            if (btnSpan) {
+                btnSpan.textContent = I18n.t('download.this.format');
+            }
+        }
+    }
+    
+    // Re-render sample cards if they exist
+    if (SampleTestState.samples && SampleTestState.samples.length > 0) {
+        renderSampleCards(SampleTestState.samples);
+    }
+    
+    // Update samples language note
+    updateSamplesLanguageNote();
 }
 
 // ==========================================
@@ -308,6 +341,10 @@ function startProcessing() {
         alert(I18n.t('please.upload.both'));
         return;
     }
+    
+    // Show development modal instead of processing
+    showDevelopmentModal();
+    return;
     
     if (AppState.isProcessing) return;
     AppState.isProcessing = true;
@@ -788,42 +825,46 @@ function loadDefaultSettings() {
 // ==========================================
 // Code Download Feature
 // ==========================================
-var HelpContent = {
-    py: {
-        title: 'Python Script (.py)',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>',
-        body: `
-            <h4>📄 What is a Python (.py) file?</h4>
-            <p>A <strong>.py file</strong> is a standard Python script that can be executed in any Python environment.</p>
-            <ul>
-                <li>Works with Python 3.7 or higher</li>
-                <li>Run directly from command line or any IDE</li>
-                <li>Ideal for local development and integration</li>
-                <li>Can be imported as a module in your projects</li>
-            </ul>
-            <div class="highlight-box">
-                <p>💡 Best for: Local development, integration into existing projects, or running on servers.</p>
-            </div>
-        `
-    },
-    ipynb: {
-        title: 'Jupyter Notebook (.ipynb)',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>',
-        body: `
-            <h4>📓 What is a Jupyter Notebook (.ipynb)?</h4>
-            <p>A <strong>.ipynb file</strong> is an interactive notebook format perfect for step-by-step analysis and visualization.</p>
-            <ul>
-                <li>Runs directly in <strong>Google Colab</strong> — no setup needed!</li>
-                <li>Interactive cells with explanations</li>
-                <li>Easy to modify and experiment with</li>
-                <li>Visualizations are displayed inline</li>
-            </ul>
-            <div class="highlight-box">
-                <p>☁️ Best for: Google Colab, quick experiments, learning, or when you don't want to set up a local environment.</p>
-            </div>
-        `
+function getHelpContent(type) {
+    if (type === 'py') {
+        return {
+            title: I18n.t('python.script'),
+            icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>',
+            body: `
+                <h4>📄 ` + I18n.t('what.is.python') + `</h4>
+                <p>` + I18n.t('python.script.desc') + `</p>
+                <ul>
+                    <li>` + I18n.t('python.works.with') + `</li>
+                    <li>` + I18n.t('python.run.directly') + `</li>
+                    <li>` + I18n.t('python.ideal.for') + `</li>
+                    <li>` + I18n.t('python.can.import') + `</li>
+                </ul>
+                <div class="highlight-box">
+                    <p>💡 ` + I18n.t('best.for') + ` ` + I18n.t('python.best.for') + `</p>
+                </div>
+            `
+        };
+    } else if (type === 'ipynb') {
+        return {
+            title: I18n.t('jupyter.notebook'),
+            icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>',
+            body: `
+                <h4>📓 ` + I18n.t('what.is.notebook') + `</h4>
+                <p>` + I18n.t('notebook.desc') + `</p>
+                <ul>
+                    <li>` + I18n.t('notebook.runs.colab') + `</li>
+                    <li>` + I18n.t('notebook.interactive') + `</li>
+                    <li>` + I18n.t('notebook.easy.modify') + `</li>
+                    <li>` + I18n.t('notebook.visualizations') + `</li>
+                </ul>
+                <div class="highlight-box">
+                    <p>☁️ ` + I18n.t('best.for') + ` ` + I18n.t('notebook.best.for') + `</p>
+                </div>
+            `
+        };
     }
-};
+    return null;
+}
 
 var currentHelpType = null;
 
@@ -919,15 +960,26 @@ function showHelpDialog(type) {
     var iconEl = document.getElementById('helpDialogIcon');
     var titleEl = document.getElementById('helpDialogTitle');
     var bodyEl = document.getElementById('helpDialogBody');
+    var downloadBtn = document.getElementById('helpDialogDownload');
     
-    if (!overlay || !HelpContent[type]) return;
+    if (!overlay) return;
+    
+    var content = getHelpContent(type);
+    if (!content) return;
     
     currentHelpType = type;
-    var content = HelpContent[type];
     
     iconEl.innerHTML = content.icon;
-    titleEl.textContent = content.title;
+    // Title is translated via data-i18n, so just update the body
     bodyEl.innerHTML = content.body;
+    
+    // Update download button text
+    if (downloadBtn) {
+        var btnSpan = downloadBtn.querySelector('span[data-i18n]');
+        if (btnSpan) {
+            btnSpan.textContent = I18n.t('download.this.format');
+        }
+    }
     
     overlay.style.display = 'flex';
     closeAllDropdowns();
@@ -1002,6 +1054,9 @@ function openSamplesSidebar() {
     if (sidebar) sidebar.classList.add('open');
     if (overlay) overlay.classList.add('show');
     document.body.style.overflow = 'hidden';
+    
+    // Update language note
+    updateSamplesLanguageNote();
 }
 
 function closeSamplesSidebar() {
@@ -1011,6 +1066,15 @@ function closeSamplesSidebar() {
     if (sidebar) sidebar.classList.remove('open');
     if (overlay) overlay.classList.remove('show');
     document.body.style.overflow = '';
+}
+
+function updateSamplesLanguageNote() {
+    var noteEl = document.getElementById('samplesLanguageNote');
+    if (!noteEl) return;
+    
+    var currentLang = I18n.getLanguage();
+    var noteKey = currentLang === 'en' ? 'samples.language.note.en' : 'samples.language.note.tr';
+    noteEl.textContent = I18n.t(noteKey);
 }
 
 function loadSamples() {
@@ -1043,11 +1107,11 @@ function renderSampleCards(samples) {
                 </div>
                 <div class="sample-card-images">
                     <div class="sample-card-image-wrapper">
-                        <span class="sample-card-image-label">Ref</span>
+                        <span class="sample-card-image-label">` + I18n.t('ref.label') + `</span>
                         <img src="/api/samples/image/${sample.reference}" alt="Reference" class="sample-card-image">
                     </div>
                     <div class="sample-card-image-wrapper">
-                        <span class="sample-card-image-label">Sample</span>
+                        <span class="sample-card-image-label">` + I18n.t('sample.label') + `</span>
                         <img src="/api/samples/image/${sample.sample}" alt="Sample" class="sample-card-image">
                     </div>
                 </div>
@@ -1270,7 +1334,9 @@ function displaySampleResults(sample) {
 }
 
 function downloadSampleReport(sampleId) {
-    var downloadUrl = '/api/samples/report/' + sampleId;
+    // Get current language and append to URL
+    var currentLang = I18n.getLanguage();
+    var downloadUrl = '/api/samples/report/' + sampleId + '?lang=' + currentLang;
     
     var a = document.createElement('a');
     a.href = downloadUrl;

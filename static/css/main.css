@@ -1521,6 +1521,21 @@ body {
     color: #64748b;
 }
 
+.samples-language-note {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: rgba(0, 102, 204, 0.08);
+    border-left: 3px solid #0066cc;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #0066cc;
+    line-height: 1.5;
+}
+    margin: 0;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
 /* Sample Card */
 .sample-card {
     background: #f8fafc;
@@ -1705,6 +1720,253 @@ body {
     font-size: 0.85rem;
     font-weight: 600;
     color: #00c853;
+}
+
+/* ==========================================
+   Development Modal
+   ========================================== */
+.development-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.development-modal {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.development-modal-header {
+    text-align: center;
+    padding: 40px 40px 30px;
+    background: linear-gradient(135deg, rgba(0, 102, 204, 0.05), rgba(0, 136, 255, 0.1));
+    border-radius: 20px 20px 0 0;
+    border-bottom: 2px solid rgba(0, 102, 204, 0.1);
+}
+
+.development-logo-container {
+    margin-bottom: 20px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.development-logo {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0, 102, 204, 0.2));
+}
+
+.development-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0066cc;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    text-shadow: 0 2px 4px rgba(0, 102, 204, 0.1);
+}
+
+.development-message {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin: 0;
+    font-weight: 500;
+}
+
+.development-modal-body {
+    padding: 30px 40px;
+}
+
+.development-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.development-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #334155;
+    margin: 0;
+}
+
+.development-logos-section {
+    margin-top: 10px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.development-logos-note {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0 0 16px 0;
+    font-style: italic;
+}
+
+.development-logos-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-logo-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0066cc;
+    background: #ffffff;
+    border: 2px solid rgba(0, 102, 204, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    text-align: left;
+}
+
+.btn-logo-download:hover {
+    background: linear-gradient(135deg, rgba(0, 102, 204, 0.08), rgba(0, 136, 255, 0.12));
+    border-color: #0066cc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.15);
+}
+
+.btn-logo-download:active {
+    transform: translateY(0);
+}
+
+.btn-logo-download svg {
+    flex-shrink: 0;
+}
+
+.development-code-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #1e293b;
+    border-radius: 12px;
+    border: 1px solid #334155;
+}
+
+.development-code-section h3 {
+    color: #ffffff;
+    font-size: 1.1rem;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+}
+
+.development-code {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.development-modal-footer {
+    padding: 30px 40px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    border-radius: 0 0 20px 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.development-modal-footer .btn {
+    min-width: 180px;
+}
+
+@media (max-width: 768px) {
+    .development-modal {
+        max-width: 100%;
+        margin: 10px;
+        max-height: 95vh;
+    }
+    
+    .development-modal-header {
+        padding: 30px 20px 20px;
+    }
+    
+    .development-logo {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .development-title {
+        font-size: 1.5rem;
+    }
+    
+    .development-modal-body {
+        padding: 20px;
+    }
+    
+    .development-modal-footer {
+        padding: 20px;
+        flex-direction: column;
+    }
+    
+    .development-modal-footer .btn {
+        width: 100%;
+    }
 }
 
 /* Responsive for sidebar */
