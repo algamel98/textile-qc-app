@@ -74,6 +74,8 @@ var I18n = {
             'circle': 'Circle',
             'square': 'Square',
             'process.entire.image': 'Process Entire Image',
+            'analyze.single.image': 'Analyze Single Image',
+            'image.to.analyze': 'Image to be Analyzed',
             'size.px': 'Size (px):',
             'px': 'px',
             
@@ -175,6 +177,7 @@ var I18n = {
             // Errors & Messages
             'error.reading.file': 'Error reading file',
             'please.upload.both': 'Please upload both reference and sample images',
+            'please.upload.image': 'Please upload an image to analyze',
             'delete.confirm': 'Delete all images and start over?',
             'failed.to.load.samples': 'Failed to load samples',
             
@@ -292,6 +295,8 @@ var I18n = {
             'circle': 'Daire',
             'square': 'Kare',
             'process.entire.image': 'Tüm Görüntüyü İşle',
+            'analyze.single.image': 'Tek Görüntü Analiz Et',
+            'image.to.analyze': 'Analiz Edilecek Görüntü',
             'size.px': 'Boyut (px):',
             'px': 'px',
             
@@ -393,6 +398,7 @@ var I18n = {
             // Errors & Messages
             'error.reading.file': 'Dosya okuma hatası',
             'please.upload.both': 'Lütfen hem referans hem de örnek görüntüleri yükleyin',
+            'please.upload.image': 'Lütfen analiz edilecek bir görüntü yükleyin',
             'delete.confirm': 'Tüm görüntüleri silip yeniden başlamak istiyor musunuz?',
             'failed.to.load.samples': 'Örnekler yüklenemedi',
             

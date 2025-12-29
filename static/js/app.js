@@ -13,6 +13,7 @@ var AppState = {
     shapeType: 'circle',
     shapeSize: 100,
     processFullImage: false,
+    analyzeSingleImage: false,
     pdfFilename: null,
     settings: {},
     isProcessing: false
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initLanguageSwitcher();
     initFileInputs();
     initShapeControls();
+    initSingleImageMode();
     initButtons();
     initModal();
     initOverlayTracking();
@@ -92,6 +94,16 @@ function updateDynamicTranslations() {
     var operatorInput = document.getElementById('operator_name');
     if (operatorInput && !operatorInput.value) {
         operatorInput.placeholder = I18n.t('operator');
+    }
+    
+    // Update single image mode label if active
+    if (AppState.analyzeSingleImage) {
+        var testPanel = document.querySelector('.viewer-panel:last-child');
+        var testTitle = testPanel ? testPanel.querySelector('.panel-title') : null;
+        var testTitleText = testTitle ? testTitle.querySelector('span:last-child') : null;
+        if (testTitleText) {
+            testTitleText.textContent = I18n.t('image.to.analyze');
+        }
     }
     
     // Update help dialog if it's open
@@ -238,10 +250,7 @@ function toggleShapeControls(enabled) {
     if (squareOpt) squareOpt.classList.toggle('disabled', !enabled);
     if (sliderContainer) sliderContainer.classList.toggle('disabled', !enabled);
     
-    var refOverlay = document.getElementById('refOverlay');
-    var testOverlay = document.getElementById('testOverlay');
-    if (refOverlay) refOverlay.style.display = enabled ? '' : 'none';
-    if (testOverlay) testOverlay.style.display = enabled ? '' : 'none';
+    updateOverlayVisibility();
 }
 
 // ==========================================
@@ -251,7 +260,9 @@ function initOverlayTracking() {
     var refPanel = document.getElementById('refPanelContent');
     var testPanel = document.getElementById('testPanelContent');
     
-    [refPanel, testPanel].forEach(function(panel) {
+    var panels = AppState.analyzeSingleImage ? [testPanel] : [refPanel, testPanel];
+    
+    panels.forEach(function(panel) {
         if (!panel) return;
         
         panel.addEventListener('mousemove', function(e) {
@@ -271,9 +282,10 @@ function initOverlayTracking() {
 }
 
 function moveOverlays(x, y) {
-    ['refOverlay', 'testOverlay'].forEach(function(id) {
+    var overlayIds = AppState.analyzeSingleImage ? ['testOverlay'] : ['refOverlay', 'testOverlay'];
+    overlayIds.forEach(function(id) {
         var overlay = document.getElementById(id);
-        if (overlay) {
+        if (overlay && overlay.style.display !== 'none') {
             overlay.style.left = x + 'px';
             overlay.style.top = y + 'px';
         }
@@ -281,17 +293,21 @@ function moveOverlays(x, y) {
 }
 
 function setOverlaysOpacity(opacity) {
-    ['refOverlay', 'testOverlay'].forEach(function(id) {
+    var overlayIds = AppState.analyzeSingleImage ? ['testOverlay'] : ['refOverlay', 'testOverlay'];
+    overlayIds.forEach(function(id) {
         var overlay = document.getElementById(id);
-        if (overlay) overlay.style.opacity = opacity;
+        if (overlay && overlay.style.display !== 'none') {
+            overlay.style.opacity = opacity;
+        }
     });
 }
 
 function updateOverlayShape() {
     var isCircle = AppState.shapeType === 'circle';
-    ['refOverlay', 'testOverlay'].forEach(function(id) {
+    var overlayIds = AppState.analyzeSingleImage ? ['testOverlay'] : ['refOverlay', 'testOverlay'];
+    overlayIds.forEach(function(id) {
         var overlay = document.getElementById(id);
-        if (overlay) {
+        if (overlay && overlay.style.display !== 'none') {
             overlay.style.borderRadius = isCircle ? '50%' : '0';
         }
     });
@@ -299,9 +315,10 @@ function updateOverlayShape() {
 
 function updateOverlaySize() {
     var size = AppState.shapeSize;
-    ['refOverlay', 'testOverlay'].forEach(function(id) {
+    var overlayIds = AppState.analyzeSingleImage ? ['testOverlay'] : ['refOverlay', 'testOverlay'];
+    overlayIds.forEach(function(id) {
         var overlay = document.getElementById(id);
-        if (overlay) {
+        if (overlay && overlay.style.display !== 'none') {
             overlay.style.width = size + 'px';
             overlay.style.height = size + 'px';
         }
@@ -329,7 +346,9 @@ function initButtons() {
 }
 
 function updateButtonStates() {
-    var hasImages = AppState.refFile && AppState.testFile;
+    var hasImages = AppState.analyzeSingleImage 
+        ? AppState.testFile 
+        : (AppState.refFile && AppState.testFile);
     var btnProcess = document.getElementById('btnStartProcessing');
     var btnDelete = document.getElementById('btnDeleteImages');
     
@@ -338,12 +357,128 @@ function updateButtonStates() {
 }
 
 // ==========================================
+// Single Image Mode
+// ==========================================
+function initSingleImageMode() {
+    var checkbox = document.getElementById('analyzeSingleImage');
+    if (!checkbox) return;
+    
+    checkbox.addEventListener('change', function(e) {
+        AppState.analyzeSingleImage = e.target.checked;
+        toggleSingleImageMode(e.target.checked);
+        updateButtonStates();
+    });
+}
+
+function toggleSingleImageMode(enabled) {
+    var imageViewer = document.querySelector('.image-viewer');
+    var refPanel = document.querySelector('.viewer-panel:first-child');
+    var testPanel = document.querySelector('.viewer-panel:last-child');
+    var testTitle = testPanel ? testPanel.querySelector('.panel-title') : null;
+    var testTitleText = testTitle ? testTitle.querySelector('span:last-child') : null;
+    var refInput = document.getElementById('refInput');
+    var refPlaceholder = document.getElementById('refPlaceholder');
+    
+    if (!imageViewer || !refPanel || !testPanel) return;
+    
+    if (enabled) {
+        // Add single image mode class
+        imageViewer.classList.add('single-image-mode');
+        
+        // Disable reference input
+        if (refInput) refInput.disabled = true;
+        if (refPlaceholder) refPlaceholder.style.pointerEvents = 'none';
+        
+        // Hide reference panel with animation
+        refPanel.classList.add('hiding');
+        
+        // Update test panel title
+        if (testTitleText) {
+            testTitleText.setAttribute('data-i18n', 'image.to.analyze');
+            testTitleText.textContent = I18n.t('image.to.analyze');
+            
+            // Update dot color
+            var dot = testTitle.querySelector('.dot');
+            if (dot) {
+                dot.classList.remove('sample');
+                dot.classList.add('single');
+            }
+        }
+        
+        // Center test panel after animation
+        setTimeout(function() {
+            testPanel.classList.add('centering');
+            refPanel.style.display = 'none';
+            // Reinitialize overlay tracking for single image mode
+            initOverlayTracking();
+        }, 500);
+        
+    } else {
+        // Remove single image mode
+        imageViewer.classList.remove('single-image-mode');
+        
+        // Enable reference input
+        if (refInput) refInput.disabled = false;
+        if (refPlaceholder) refPlaceholder.style.pointerEvents = '';
+        
+        // Show reference panel
+        refPanel.style.display = '';
+        refPanel.classList.remove('hiding');
+        
+        // Reset test panel
+        testPanel.classList.remove('centering');
+        
+        // Reset test panel title
+        if (testTitleText) {
+            testTitleText.setAttribute('data-i18n', 'sample.image');
+            testTitleText.textContent = I18n.t('sample.image');
+            
+            // Reset dot color
+            var dot = testTitle.querySelector('.dot');
+            if (dot) {
+                dot.classList.remove('single');
+                dot.classList.add('sample');
+            }
+        }
+        
+        // Reinitialize overlay tracking for dual image mode
+        setTimeout(function() {
+            initOverlayTracking();
+        }, 500);
+    }
+    
+    // Update overlay visibility
+    updateOverlayVisibility();
+}
+
+function updateOverlayVisibility() {
+    var refOverlay = document.getElementById('refOverlay');
+    var testOverlay = document.getElementById('testOverlay');
+    
+    if (AppState.analyzeSingleImage) {
+        if (refOverlay) refOverlay.style.display = 'none';
+        if (testOverlay) testOverlay.style.display = AppState.processFullImage ? 'none' : '';
+    } else {
+        if (refOverlay) refOverlay.style.display = AppState.processFullImage ? 'none' : '';
+        if (testOverlay) testOverlay.style.display = AppState.processFullImage ? 'none' : '';
+    }
+}
+
+// ==========================================
 // Processing with Progress
 // ==========================================
 function startProcessing() {
-    if (!AppState.refFile || !AppState.testFile) {
-        alert(I18n.t('please.upload.both'));
-        return;
+    // Check if single image mode is enabled
+    if (AppState.analyzeSingleImage) {
+        if (!AppState.testFile) {
+            alert(I18n.t('please.upload.image'));
+            return;
+        }
+    } else {
+        if (!AppState.refFile || !AppState.testFile) {
+            alert(I18n.t('please.upload.both'));
+            return;
+        }
     }
     
     // Show development modal instead of processing
@@ -361,8 +496,14 @@ function startProcessing() {
     updateProgress('upload', 0, I18n.t('uploading.images'));
     
     var formData = new FormData();
-    formData.append('reference', AppState.refFile);
-    formData.append('sample', AppState.testFile);
+    if (AppState.analyzeSingleImage) {
+        // In single image mode, use test image as both reference and sample
+        formData.append('reference', AppState.testFile);
+        formData.append('sample', AppState.testFile);
+    } else {
+        formData.append('reference', AppState.refFile);
+        formData.append('sample', AppState.testFile);
+    }
     
     fetch('/api/upload', {
         method: 'POST',
