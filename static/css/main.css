@@ -105,15 +105,27 @@ body {
     transform: translateY(0);
 }
 
-.btn-language-switcher .lang-flag {
-    font-size: 1.1rem;
-    line-height: 1;
+.btn-language-switcher .lang-flag-img {
+    width: 20px;
+    height: 15px;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: block;
 }
 
 .btn-language-switcher .lang-text {
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.5px;
+}
+
+/* Google Colab Logo */
+.colab-logo {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: block;
 }
 
 .code-download-container {

@@ -550,17 +550,19 @@ function updateLanguageSwitcher() {
     if (!btn) return;
     
     var lang = I18n.getLanguage();
-    var langText = lang === 'en' ? 'TR' : 'EN';
-    var flag = lang === 'en' ? '🇹🇷' : '🇬🇧';
+    var langText = lang === 'en' ? 'TR' : 'ENG';
+    // Show flag of the language you can switch TO (opposite of current)
+    var flagImg = lang === 'en' ? '/static/images/tr.png' : '/static/images/uk.png';
     
     var span = btn.querySelector('.lang-text');
     if (span) {
         span.textContent = langText;
     }
     
-    var flagSpan = btn.querySelector('.lang-flag');
-    if (flagSpan) {
-        flagSpan.textContent = flag;
+    var flagImgEl = btn.querySelector('.lang-flag-img');
+    if (flagImgEl) {
+        flagImgEl.src = flagImg;
+        flagImgEl.alt = lang === 'en' ? 'Turkish Flag' : 'English Flag';
     }
     
     // Update title
